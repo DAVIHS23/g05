@@ -1,11 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hallo Welt!</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DAVI</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&family=Montserrat:wght@100&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <button
+      type="button"
+      class="hover-button"
+      id="scrollButton"
+      onclick="goToTopFunktion()"
+    >
+      <i class="fa fa-solid fa-angle-up"></i>
+    </button>
+    <nav>
+      <a href="index.html"><i class="fa fa-fw fa-home"></i></a>
+      <a href="background.html">Background</a>
+      <a href="data.html">Data Sources</a>
+      <a href="visualization.html">Visualization</a>
+      <a href="design.html">Visual Design</a>
+      <a href="references.html">References</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <section id="home">
+      <h1>WETTSTREIT DER NATIONEN</h1>
+      <h3>Olympische Triumphe auf einen Blick</h3>
+      <div id="columns-container">
+        <div id="map-container">
+          <!-- Map will be appended here -->
+        </div>
+        <div id="graphs-container">
+          <div class="white-square"></div>
+
+          <!-- Graphs will go here -->
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <p>&copy; Joel Birrer & Philipp Walczak</p>
+        <a href="mailto: philipp.walczak@stud.ch" class="footer-link"
+          >Contact us</a
+        >
+      </div>
+    </footer>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="main.js"></script>
+    <script src="scrollup.js"></script>
+  </body>
 </html>
