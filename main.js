@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return val > max ? val : max;
     }, 0);
  
-   const colorScale = d3.scaleLog().domain([1, max_medals_weighted]).range(["#f7f7f7", "#ffd700"]);
+   const colorScale = d3.scaleLog().domain([0.01, max_medals_weighted]).range(["#f7f7f7", "#ffd700"]);
  
     // Convert TopoJSON to GeoJSON
     const countries = topojson.feature(
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .attr("stroke", "#fff")
       .attr("fill", (d) => {
         let countryName = map_country_id_name.get(d.id);
-        let medals = map_country_medals.get(countryName) || [0, 0, 0];
+        let medals = map_country_medals.get(countryName) || [0.01, 0.01, 0.01]; // Prevent a country from having no or zero values
         return colorScale(weight_medals(medals));
       })
       .on("mouseover", handleMouseOver)
@@ -118,14 +118,11 @@ document.addEventListener("DOMContentLoaded", function () {
       let country_information = d3.select("#country-overview").html("Land: " + countryName);
       country_information.selectAll("*").remove();
 
-      if(map_country_medals.get(countryName) == undefined) {
-        return;
-      }
-
       console.log(map_country_medals.get(countryName));
+      countryMedals = map_country_medals.get(countryName) || [0, 0, 0] // Prevent a country from having no data
 
       let ul = country_information.append("ul");
-      ul.selectAll("li").data(map_country_medals.get(countryName)).enter().append("li").text(function(amount_medal, index){
+      ul.selectAll("li").data(countryMedals).enter().append("li").text(function(amount_medal, index){
         if (index == 0) {
           return `🥇: ${amount_medal}`;
         }
