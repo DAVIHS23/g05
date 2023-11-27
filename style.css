@@ -1,9 +1,9 @@
 body {
-  background-color: #131316;
-  color: #ffffff;
-  font-family: "Manrope";
-  padding: 0;
-  margin: 0;
+  background-color: #131316 !important;
+  color: #ffffff !important;
+  font-family: "Manrope" !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 section {
   display: grid;
@@ -44,31 +44,30 @@ nav a:hover {
   flex-direction: column; /* Arrange child elements in a column */
   align-items: center; /* Center the content horizontally */
   margin-top: 20px; /* Adjust the margin between the section and the navigation */
+  background-color: #131316;
 }
 
-#columns-container {
-  display: flex; /* Use flexbox for the columns container */
-  justify-content: space-around; /* Arrange columns with space around them */
-  width: 100%; /* Take up the full width of the screen */
-}
-
-/* Additional styles for hiding and transitioning the graph container */
 #map-container {
-  width: 50%;
-  position: relative;
-  margin-right: 5px; /* Adjust the margin as needed */
-}
-.white-square {
   width: 100%;
-  height: 950px; /* Set the height of the square */
-  background-color: white; /* Set the background color to white */
+  height: 100vh;
+  margin-left: auto;
+  margin-right: auto;
+  transition: margin-left 0.5s ease; /* Add transition for smooth movement */
+  overflow: hidden; /* Hide any content that overflows the container */
 }
 
+/* Set initial size for the graphs */
 #graphs-container {
-  width: 50%;
-  margin-left: 5px; /* Adjust the margin as needed */
-  position: relative;
-  transition: width 0.5s ease; /* Add transition for width property */
+  width: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: width 0.5s ease-in;
+  background-color: #353535; /* Set background color */
+}
+#country-overview {
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #fff;
 }
 
 /* Add styles for the selected country */
