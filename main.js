@@ -157,7 +157,10 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       // Define a scale based on the maximum gold medals
-      const yScale = d3.scaleLinear().domain([0, 3000]).range([200, 0]); // Adjust the range as needed
+      const yScale = d3
+        .scaleLinear()
+        .domain([0, maxGoldMedals])
+        .range([200, 0]);
 
       // Create a bar chart
       const barWidth = 500 / 3; // Divide by the number of medal types
@@ -181,28 +184,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const medalColors = ["#ffd700", "#c0c0c0", "#cd7f32"];
       const medalLabels = ["Gold", "Silver", "Bronze"];
 
+      // Append bars with initial height
       barChart
         .selectAll("rect")
         .data(countryMedals)
         .enter()
         .append("rect")
         .attr("x", (d, i) => i * (barWidth + barSpacing) + 40) // Adjust the position to align with the y-axis
-        .attr("y", (d) => yScale(d))
+        .attr("y", 200) // Start the bars at the bottom
         .attr("width", barWidth)
+        .attr("height", 0) // Start the bars with height 0
+        .attr("fill", (d, i) => medalColors[i])
+        .transition()
+        .duration(800)
+        .attr("y", (d) => yScale(d))
         .attr("height", (d) => 200 - yScale(d))
-        .attr("fill", (d, i) => medalColors[i]);
-
-      // Add x-axis labels
-      barChart
-        .selectAll(".x-label")
-        //.data(medalLabels)
-        .enter()
-        .append("text")
-        .attr("class", "x-label")
-        .attr("x", (d, i) => i * (barWidth + barSpacing) + 40 + barWidth / 2) // Center the label under each bar
-        .attr("y", 220) // Adjust the position as needed
-        .attr("text-anchor", "middle")
-        .text((d) => d);
+        .delay((d, i) => i * 100);
 
       // Get athletes data for the clicked country
       const countryAthletes = athletData.filter(
