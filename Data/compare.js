@@ -1,3 +1,4 @@
+// This was used to quickly find the differences in the countries (names that don't match) in both json files.
 const dataCountries = [
   "Denmark",
   "Finland",

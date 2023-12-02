@@ -40,10 +40,10 @@ nav a:hover {
 }
 
 #home {
-  display: flex; /* Use flexbox for the home section */
-  flex-direction: column; /* Arrange child elements in a column */
-  align-items: center; /* Center the content horizontally */
-  margin-top: 20px; /* Adjust the margin between the section and the navigation */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
   background-color: #131316;
 }
 
@@ -59,15 +59,13 @@ nav a:hover {
 /* Set initial size for the graphs */
 #graphs-container {
   width: 0;
-  height: 100vh;
+  height: 1350px;
   overflow: hidden;
   transition: width 0.5s ease-in;
-  background-color: #353535; /* Set background color */
+  background-color: #353535;
 }
 #country-overview {
   padding: 20px;
-  margin-bottom: 20px;
-  color: #fff;
 }
 
 /* Add styles for the selected country */
@@ -105,4 +103,29 @@ h3 {
 
 .footer-link {
   color: white;
+}
+
+#athlete-bar-plot {
+  padding: 20px;
+}
+
+.athlete-bar {
+  transition: width 0.5s ease-in-out;
+}
+
+.athlete-bar:hover {
+  fill: #2980b9;
+}
+
+.athlete-label {
+  font-size: 14px;
+}
+
+.medal-count-label {
+  font-size: 14px;
+  text-anchor: end;
+}
+
+#total-medals-bar-plot {
+  padding: 20px;
 }

@@ -45,6 +45,7 @@
     <section id="home">
       <h1>WETTSTREIT DER NATIONEN</h1>
       <h3>Olympische Triumphe auf einen Blick</h3>
+
       <div id="columns-container" class="container-fluid">
         <div class="row">
           <!-- Map -->
@@ -54,7 +55,22 @@
           <!-- Graphs -->
           <div class="col-md-6">
             <div id="graphs-container">
+              <h4>Medaillenübersicht</h4>
+
               <div id="country-overview"></div>
+              <h4>Athletenübersicht</h4>
+
+              <div id="athlete-bar-plot"></div>
+              <div id="total-medals-bar-plot">
+                <div>
+                  <h4>Globale Medaillensieger/ -verlierer</h4>
+                  <label for="medalDropdown"></label>
+                  <select id="dropdown-menu" onchange="updateChart()">
+                    <option value="Top">Top 10 Länder</option>
+                    <option value="Bottom">Bottom 10 Länder</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -71,7 +87,9 @@
     </footer>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
-    <script src="main.js"></script>
-    <script src="scrollup.js"></script>
+    <script src="js/main.js"></script>
+    <!-- <script src="js/map.js"></script> -->
+    <script src="js/scrollup.js"></script>
+    <script src="js/total_medals.js"></script>
   </body>
 </html>

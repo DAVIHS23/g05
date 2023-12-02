@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .attr("height", mapHeight);
 
   Promise.all([
-    d3.json("Data/world_atlas_110m.json"),
+    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"),
     d3.json("Data/data.json"),
     d3.json("Data/country_codes.json"),
   ]).then(([worldData, athletData, countryCodes]) => {
@@ -133,84 +133,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log(map_country_medals.get(countryName));
       countryMedals = map_country_medals.get(countryName) || [0, 0, 0]; // Prevent a country from having no data
-
-      let ul = country_information.append("ul");
-      ul.selectAll("li")
-        .data(countryMedals)
-        .enter()
-        .append("li")
-        .text(function (amount_medal, index) {
-          if (index == 0) {
-            return `🥇: ${amount_medal}`;
-          } else if (index == 1) {
-            return `🥈: ${amount_medal}`;
-          } else if (index == 2) {
-            return `🥉: ${amount_medal}`;
-          }
-        });
-
-      // Calculate the maximum gold medals across all countries
-      const maxGoldMedals = d3.max(
-        Array.from(map_country_medals.values()).map(
-          (countryMedals) => countryMedals[0]
-        )
-      );
-
-      // Define a scale based on the maximum gold medals
-      const yScale = d3
-        .scaleLinear()
-        .domain([0, maxGoldMedals])
-        .range([200, 0]);
-
-      // Create a bar chart
-      const barWidth = 500 / 3; // Divide by the number of medal types
-      const barSpacing = 10;
-
-      const barChart = d3
-        .select("#country-overview")
-        .append("svg")
-        .attr("width", "100%")
-        .attr("height", 250); // Increased height to accommodate axes
-
-      // Add y-axis
-      const yAxis = d3.axisLeft(yScale);
-      barChart
-        .append("g")
-        .attr("class", "y-axis") // Added class for styling
-        .attr("transform", "translate(40,0)") // Adjust the position as needed
-        .call(yAxis);
-
-      // Add bars for gold, silver, and bronze
-      const medalColors = ["#ffd700", "#c0c0c0", "#cd7f32"];
-      const medalLabels = ["Gold", "Silver", "Bronze"];
-
-      // Append bars with initial height
-      barChart
-        .selectAll("rect")
-        .data(countryMedals)
-        .enter()
-        .append("rect")
-        .attr("x", (d, i) => i * (barWidth + barSpacing) + 40) // Adjust the position to align with the y-axis
-        .attr("y", 200) // Start the bars at the bottom
-        .attr("width", barWidth)
-        .attr("height", 0) // Start the bars with height 0
-        .attr("fill", (d, i) => medalColors[i])
-        .transition()
-        .duration(800)
-        .attr("y", (d) => yScale(d))
-        .attr("height", (d) => 200 - yScale(d))
-        .delay((d, i) => i * 100);
-
-      // Get athletes data for the clicked country
-      const countryAthletes = athletData.filter(
-        (athlete) => athlete.Country === countryName
-      );
-
-      // Log the names of athletes for the selected country
-      countryAthletes.forEach((athlete) => {
-        console.log(athlete.Name);
-      });
-
       clearInterval(rotationTimer);
     }
 
