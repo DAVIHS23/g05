@@ -27,16 +27,9 @@ document.addEventListener("DOMContentLoaded", function () {
     .attr("height", mapHeight);
 
   Promise.all([
-    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"),
-    d3.json("Data/data.json"),
-    d3.json("Data/country_codes.json"),
-  ]).then(([worldData, athletData, countryCodes]) => {
-    // Create map to handle country ids
-    const map_country_id_name = new Map();
-    countryCodes.forEach((country) => {
-      map_country_id_name.set(country["country-code"], country["name"]);
-    });
-
+    d3.json("Data/countries-110m.json"),
+    d3.json("Data/data.json")
+  ]).then(([countriesData, athletData]) => {
     // Create map to get amount of medals for each country
     const map_country_medals = new Map();
     athletData.forEach((athlet) => {
@@ -67,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .range(["#f7f7f7", "#ffd700"]);
 
     // Convert TopoJSON to GeoJSON
-    const countries = topojson.feature(worldData, worldData.objects.countries);
+    const countries = topojson.feature(countriesData, countriesData.objects.countries);
 
     // Create a projection for the map
     const projection = d3
@@ -86,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .attr("d", path)
       .attr("stroke", "#fff")
       .attr("fill", (d) => {
-        let countryName = map_country_id_name.get(d.id);
+        let countryName = d.properties.name
         let medals = map_country_medals.get(countryName) || [0.01, 0.01, 0.01]; // Prevent a country from having no or zero values
         return colorScale(weight_medals(medals));
       })
@@ -120,21 +113,16 @@ document.addEventListener("DOMContentLoaded", function () {
       // Remove the "selected" class from previously selected countries
       countriesPaths.classed("selected-country", false);
 
-      let countryName = map_country_id_name.get(d.id);
+      let countryName = d.properties.name;
 
       d3.select(this).classed("selected-country", true);
-
-      console.log(countryName);
 
       let country_information = d3
         .select("#country-overview")
         .html("Land: " + countryName);
       country_information.selectAll("*").remove();
 
-      console.log(map_country_medals.get(countryName));
       countryMedals = map_country_medals.get(countryName) || [0, 0, 0]; // Prevent a country from having no data
-
-      console.log(d3.max(countryMedals));
 
       // Calculate the maximum gold medals across all countries
       const maxGoldMedals = d3.max(
