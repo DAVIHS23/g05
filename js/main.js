@@ -118,7 +118,6 @@ document.addEventListener("DOMContentLoaded", function () {
       let countryName = d.properties.name;
 
       countriesQueue.enqueue(countryName);
-      console.log(countriesQueue);
 
       d3.select(this).classed("selected-country", true);
 
@@ -290,35 +289,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("alignment-baseline", "middle")
         .attr("fill", "#fff");
 
-      // Count the number of medals for each year
-      const medalCountByYear = {};
-      countryAthletes.forEach((athlete) => {
-        const year = athlete.Year;
-        const count = medalCountByYear[year] || 0;
-        medalCountByYear[year] = count + 1;
-      });
-
-      const medalDataByYear = Object.keys(medalCountByYear).map((year) => ({
-        year: +year,
-        count: medalCountByYear[year],
-      }));
-
-      medalDataByYear.sort((a, b) => a.year - b.year);
+      console.log(countriesQueue.queue)
+      let medalDatabyCountryAndYear = getDataLinechart(athletData, countriesQueue)
+      d3.select("#country-line-plot").select("svg").remove();
 
       const lineChartWidth = 460;
       const lineChartHeight = 200;
-      const lineChartMargin = { top: 10, right: 30, bottom: 40, left: 60 };
-
-      const line_xScale = d3.scaleLinear().domain(d3.extent(medalDataByYear, (d) => d.year)).range([0, lineChartWidth]);
-      const line_yScale = d3.scaleLinear().domain([0, d3.max(medalDataByYear, (d) => Math.ceil(d.count / 10) * 10)]).range([lineChartHeight, 0]);
-
-      const line = d3
-        .line()
-        .x((d) => line_xScale(d.year))
-        .y((d) => line_yScale(d.count));
-
-      d3.select("#country-line-plot").select("svg").remove();
-
+      const lineChartMargin = { top: 10, right: 250, bottom: 40, left: 60 };
+    
+      const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+      
       const lineChartSvg = d3
         .select("#country-line-plot")
         .append("svg")
@@ -326,10 +306,18 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("height", lineChartHeight + lineChartMargin.top + lineChartMargin.bottom)
         .append("g")
         .attr("transform", "translate(" + lineChartMargin.left + "," + lineChartMargin.top + ")");
-
+      
+      const line_xScale = d3.scaleLinear().domain(d3.extent(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year)).range([0, lineChartWidth]);
+      const line_yScale = d3.scaleLinear().domain([0, d3.max(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => Math.ceil(d.count / 10) * 10)]).range([lineChartHeight, 0]);
+      
+      const line = d3
+        .line()
+        .x((d) => line_xScale(d.year))
+        .y((d) => line_yScale(d.count));
+      
       const line_xAxis = d3.axisBottom(line_xScale);
-      line_xAxis.ticks((d3.extent(medalDataByYear, (d) => d.year)[1] - d3.extent(medalDataByYear, (d) => d.year)[0]) / 5);
-
+      line_xAxis.ticks((d3.extent(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year)[1] - d3.extent(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year)[0]) / 5);
+      
       lineChartSvg
         .append("g")
         .attr("transform", "translate(0," + lineChartHeight + ")")
@@ -339,28 +327,56 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("dx", "-1em")
         .attr("dy", "-0.5em")
         .attr("transform", "rotate(-60)");
-
+      
       lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
+      
+      const circlesGroup = lineChartSvg.append("g");
+      for (let i = 0; i < medalDatabyCountryAndYear.length; i++) {
+        lineChartSvg
+          .append("path")
+          .datum(medalDatabyCountryAndYear[i])
+          .attr("fill", "none")
+          .attr("stroke", colorScale(i))
+          .attr("stroke-width", 2)
+          .attr("d", line);
+          
+        circlesGroup
+          .selectAll(`.circle-${i}`)
+          .data(medalDatabyCountryAndYear[i])
+          .enter()
+          .append("circle")
+          .attr("class", `circle-${i}`)
+          .attr("cx", (d) => line_xScale(d.year))
+          .attr("cy", (d) => line_yScale(d.count))
+          .attr("r", 3)
+          .attr("fill", colorScale(i))
+          .append("title")
+          .text((d) => `${countriesQueue.queue[i]} (${d.year}): ${d.count} Medaillen`);
 
-      lineChartSvg
-        .append("path")
-        .datum(medalDataByYear)
-        .attr("fill", "none")
-        .attr("stroke", "#3498db")
-        .attr("stroke-width", 2)
-        .attr("d", line);
+      }
 
-      lineChartSvg
-        .selectAll("circle")
-        .data(medalDataByYear)
-        .enter()
-        .append("circle")
-        .attr("cx", (d) => line_xScale(d.year))
-        .attr("cy", (d) => line_yScale(d.count))
-        .attr("r", 3)
-        .attr("fill", "#3498db")
-        .append("title")
-        .text((d) => `${d.year}: ${d.count} Medaillen`);
+      const legend = lineChartSvg
+      .append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
+      .selectAll("g")
+      .data(countriesQueue.getQueue())
+      .enter()
+      .append("g");
+
+    legend
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", (d, i) => i * 20)
+      .attr("width", 10)
+      .attr("height", 10)
+      .attr("fill", (d, i) => colorScale(i));
+
+    legend
+      .append("text")
+      .attr("x", 15)
+      .attr("y", (d, i) => i * 20 + 9)
+      .text((d) => d);
 
       clearInterval(rotationTimer);
     }
@@ -401,14 +417,43 @@ class MaxSizeQueue {
   }
 
   enqueue(item) {
-    this.queue.unshift(item);
+    if (this.queue.includes(item)) {
+      this.queue = [];
+    }
 
+    this.queue.push(item);
     if (this.queue.length > this.maxSize) {
-      this.queue.pop();
+      this.queue.shift();
     }
   }
 
   getQueue() {
     return this.queue;
   }
+}
+
+function getDataLinechart(athletData, countriesQueue) {
+    let results = [];
+    countriesQueue.queue.forEach((country) => {
+
+      const countryAthletes = athletData.filter(
+        (athlete) => athlete.Country === country
+      );
+
+      const medalCountByYear = {};
+      countryAthletes.forEach((athlete) => {
+        const year = athlete.Year;
+        const count = medalCountByYear[year] || 0;
+        medalCountByYear[year] = count + 1;
+      });
+  
+      const medalDataByYear = Object.keys(medalCountByYear).map((year) => ({
+        year: +year,
+        count: medalCountByYear[year],
+      }));
+  
+      medalDataByYear.sort((a, b) => a.year - b.year);
+      results.push(medalDataByYear);
+    });
+    return results;
 }
