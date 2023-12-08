@@ -307,7 +307,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .append("g")
         .attr("transform", "translate(" + lineChartMargin.left + "," + lineChartMargin.top + ")");
       
-      const line_xScale = d3.scaleLinear().domain(d3.extent(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year)).range([0, lineChartWidth]);
+      const line_xScale = d3.scaleLinear()
+      .domain([
+        d3.min(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year) - 5,
+        d3.max(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year) + 5
+      ])
+      .range([0, lineChartWidth]);
       const line_yScale = d3.scaleLinear().domain([0, d3.max(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => Math.ceil(d.count / 10) * 10)]).range([lineChartHeight, 0]);
       
       const line = d3
@@ -326,7 +331,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .style("text-anchor", "end")
         .attr("dx", "-1em")
         .attr("dy", "-0.5em")
-        .attr("transform", "rotate(-60)");
+        .attr("transform", "rotate(-90)");
       
       lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
       
