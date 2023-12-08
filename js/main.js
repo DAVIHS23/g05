@@ -386,19 +386,24 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("y", (d, i) => i * 20 + 9)
         .text((d) => d);
 
-      const brush = d3.brushX()
+      const brushX = d3.brushX()
         .extent([[0, 0], [lineChartWidth, lineChartHeight]])
         .on("end", brushed);
       
       lineChartSvg.append("g")
-        .attr("class", "brush")
-        .call(brush);
+        .attr("class", "brushX")
+        .call(brushX);
 
         function brushed() {
+          if (!d3.event.sourceEvent) return;
+          
           const selection = d3.event.selection;
 
           if (selection) {
             line_xScale.domain([line_xScale.invert(selection[0]), line_xScale.invert(selection[1])]);
+            setTimeout(() => {
+              lineChartSvg.select(".brushX").call(brushX.move, null);
+            }, 100); // the zoom animation takes time, hence the delay
           } else {
             line_xScale.domain([
               d3.min(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year) - 5,
