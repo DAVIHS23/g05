@@ -325,6 +325,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       lineChartSvg
         .append("g")
+        .attr("class", "x-axis")
         .attr("transform", "translate(0," + lineChartHeight + ")")
         .call(line_xAxis.tickFormat(d3.format("d")))
         .selectAll("text")  
@@ -337,13 +338,15 @@ document.addEventListener("DOMContentLoaded", function () {
       
       const circlesGroup = lineChartSvg.append("g");
       for (let i = 0; i < medalDatabyCountryAndYear.length; i++) {
-        lineChartSvg
-          .append("path")
-          .datum(medalDatabyCountryAndYear[i])
-          .attr("fill", "none")
-          .attr("stroke", colorScale(i))
-          .attr("stroke-width", 2)
-          .attr("d", line);
+        lineChartSvg.selectAll(".line")
+        .data(medalDatabyCountryAndYear)
+        .enter()
+        .append("path")
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", (d, i) => colorScale(i))
+        .attr("stroke-width", 2)
+        .attr("d", line);
           
         circlesGroup
           .selectAll(`.circle-${i}`)
@@ -361,27 +364,88 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const legend = lineChartSvg
-      .append("g")
-      .attr("class", "legend")
-      .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
-      .selectAll("g")
-      .data(countriesQueue.getQueue())
-      .enter()
-      .append("g");
+        .append("g")
+        .attr("class", "legend")
+        .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
+        .selectAll("g")
+        .data(countriesQueue.getQueue())
+        .enter()
+        .append("g");
 
-    legend
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", (d, i) => i * 20)
-      .attr("width", 10)
-      .attr("height", 10)
-      .attr("fill", (d, i) => colorScale(i));
+      legend
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", (d, i) => i * 20)
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("fill", (d, i) => colorScale(i));
 
-    legend
-      .append("text")
-      .attr("x", 15)
-      .attr("y", (d, i) => i * 20 + 9)
-      .text((d) => d);
+      legend
+        .append("text")
+        .attr("x", 15)
+        .attr("y", (d, i) => i * 20 + 9)
+        .text((d) => d);
+
+      const brush = d3.brushX()
+        .extent([[0, 0], [lineChartWidth, lineChartHeight]])
+        .on("end", brushed);
+      
+      lineChartSvg.append("g")
+        .attr("class", "brush")
+        .call(brush);
+
+        function brushed() {
+          const selection = d3.event.selection;
+
+          if (selection) {
+            line_xScale.domain([line_xScale.invert(selection[0]), line_xScale.invert(selection[1])]);
+          } else {
+            line_xScale.domain([
+              d3.min(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year) - 5,
+              d3.max(medalDatabyCountryAndYear.reduce((acc, countryData) => acc.concat(countryData), []), (d) => d.year) + 5
+            ]);
+          }
+          
+          updateLineChart();
+        }
+        
+        function updateLineChart() {
+          const filteredData = medalDatabyCountryAndYear.map(countryData => {
+            return countryData.filter(d => d.year >= line_xScale.domain()[0] && d.year <= line_xScale.domain()[1]);
+          });
+        
+          lineChartSvg.select(".x-axis").call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
+
+          lineChartSvg.selectAll(".line")
+            .data(filteredData)
+            .attr("d", (d) => line(d));
+        
+          circlesGroup.selectAll("circle").remove();
+          
+          for (let i = 0; i < filteredData.length; i++) {              
+            circlesGroup
+              .selectAll(`.circle-${i}`)
+              .data(filteredData[i])
+              .enter()
+              .append("circle")
+              .attr("class", `circle-${i}`)
+              .attr("cx", (d) => line_xScale(d.year))
+              .attr("cy", (d) => line_yScale(d.count))
+              .attr("r", 3)
+              .attr("fill", colorScale(i))
+              .append("title")
+              .text((d) => `${countriesQueue.queue[i]} (${d.year}): ${d.count} Medaillen`);
+    
+          }
+
+          lineChartSvg.select(".x-axis")
+          .selectAll("text")  
+          .style("text-anchor", "end")
+          .attr("dx", "-1em")
+          .attr("dy", "-0.5em")
+          .attr("transform", "rotate(-90)");
+
+        }
 
       clearInterval(rotationTimer);
     }
