@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 30); // Adjust the interval
     }
 
-    const countriesQueue = new MaxSizeQueue(2);
+    const countriesQueue = new MaxSizeQueue(4);
 
     function handleClick(d) {
       // Remove the "selected" class from previously selected countries
@@ -384,6 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .append("text")
         .attr("x", 15)
         .attr("y", (d, i) => i * 20 + 9)
+        .style("fill", "white")
         .text((d) => d);
 
       const brushX = d3.brushX()
