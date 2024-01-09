@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let selectedCountry = null;
   let lastSelectedPath = null;
 
-  const countriesQueue = new MaxSizeQueue(4);
+  let countriesLineChart = [];
 
   // Get the dimensions of the map container
   const mapWidth = mapContainer.node().getBoundingClientRect().width;
@@ -29,6 +29,16 @@ document.addEventListener("DOMContentLoaded", function () {
     .attr("width", mapWidth)
     .attr("height", mapHeight)
     .on("click", handleClickOnContainer);
+
+  function resetDropDown() {
+    d3.selectAll(".selectionButton").each(function(d, i) {
+      let dropdown = d3.select(this);
+
+      dropdown.style("visibility", "hidden");
+      dropdown.property("value", "");
+      dropdown.property("text", `Vergleichsland`);
+    });
+  }
 
   function handleClickOnContainer() {
     const clickedPath = d3.event.target;
@@ -44,7 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
         graphsContainer.transition().duration(500).style("width", "0");
         d3.select(clickedPath).classed("selected-country", false);
         lastSelectedPath = null;
-        countriesQueue.clear();
+        countriesLineChart = [];
+        resetDropDown();
       } else {
         // Deselect the last selected path if exists
         if (lastSelectedPath) {
@@ -60,7 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       // Clicked outside the world map, deselect the country and close the graphs container
       selectedCountry = null;
-      countriesQueue.clear();
+      countriesLineChart = [];
+      resetDropDown();
       mapContainer.transition().duration(50).style("margin-left", "0");
       graphsContainer.transition().duration(500).style("width", "0");
       // Deselect the last selected path if exists
@@ -160,7 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 30); // Adjust the interval
     }
 
-
     function handleClick(d) {
       if (selectedCountry !== d.properties.name) {
         // Move the map to the left when clicked
@@ -208,6 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
           d3.select("#country-overview").selectAll("*").remove();
           d3.select("#athlete-bar-plot").selectAll("*").remove();
           d3.select("#country-line-plot").selectAll("*").remove();
+          resetDropDown();
 
           d3.select("#country-overview").html(
             `Für das Land ${countryName} sind keine Medaillen vorhanden.`
@@ -216,12 +228,38 @@ document.addEventListener("DOMContentLoaded", function () {
             .selectAll("h4.country-specifics")
             .style("display", "none");
 
-          countriesQueue.clear();
+            countriesLineChart = [];
 
           return;
         }
 
-        countriesQueue.enqueue(countryName);
+        countriesLineChart[0] = countryName;
+
+        countryNamesFiltered = Array.from(map_country_medals.keys()).filter(country => country != countryName).sort();
+
+        d3.selectAll(".selectionButton").each(function(d, i) {
+          let dropdown = d3.select(this);
+
+          dropdown.on("change", function() {
+            createLineChart(athletData, countriesLineChart);
+          });
+
+          if (dropdown.selectAll("option").size() < 1) {
+            dropdown.append("option")
+            .text(`Vergleichsland`)
+            .attr("value", "");
+        
+            dropdown.selectAll(null)
+              .data(countryNamesFiltered)
+              .enter()
+              .append("option")
+              .text(d => d)
+              .attr("value", d => d);
+
+          }
+        });
+
+        d3.selectAll(".selectionButton").style("visibility", "visible");
 
         // Define a scale based on the maximum gold medals
         const yScale = d3
@@ -427,270 +465,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .style("fill", "white") 
           .text("Athlet");
 
-        let medalDatabyCountryAndYear = getDataLinechart(
-          athletData,
-          countriesQueue
-        );
-        d3.select("#country-line-plot").select("svg").remove();
 
-        const lineChartWidth = 460;
-        const lineChartHeight = 200;
-        const lineChartMargin = { top: 10, right: 250, bottom: 50, left: 60 };
-
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-        const lineChartSvg = d3
-          .select("#country-line-plot")
-          .append("svg")
-          .attr(
-            "width",
-            lineChartWidth + lineChartMargin.left + lineChartMargin.right
-          )
-          .attr(
-            "height",
-            lineChartHeight + lineChartMargin.top + lineChartMargin.bottom
-          )
-          .append("g")
-          .attr(
-            "transform",
-            "translate(" +
-              lineChartMargin.left +
-              "," +
-              lineChartMargin.top +
-              ")"
-          );
-
-        const line_xScale = d3
-          .scaleLinear()
-          .domain([
-            d3.min(
-              medalDatabyCountryAndYear.reduce(
-                (acc, countryData) => acc.concat(countryData),
-                []
-              ),
-              (d) => d.year
-            ) - 5,
-            d3.max(
-              medalDatabyCountryAndYear.reduce(
-                (acc, countryData) => acc.concat(countryData),
-                []
-              ),
-              (d) => d.year
-            ) + 5,
-          ])
-          .range([0, lineChartWidth]);
-        const line_yScale = d3
-          .scaleLinear()
-          .domain([
-            0,
-            d3.max(
-              medalDatabyCountryAndYear.reduce(
-                (acc, countryData) => acc.concat(countryData),
-                []
-              ),
-              (d) => Math.ceil(d.count / 10) * 10
-            ),
-          ])
-          .range([lineChartHeight, 0]);
-
-        const line = d3
-          .line()
-          .x((d) => line_xScale(d.year))
-          .y((d) => line_yScale(d.count));
-
-        const line_xAxis = d3.axisBottom(line_xScale);
-        line_xAxis.ticks(
-          (d3.extent(
-            medalDatabyCountryAndYear.reduce(
-              (acc, countryData) => acc.concat(countryData),
-              []
-            ),
-            (d) => d.year
-          )[1] -
-            d3.extent(
-              medalDatabyCountryAndYear.reduce(
-                (acc, countryData) => acc.concat(countryData),
-                []
-              ),
-              (d) => d.year
-            )[0]) /
-            5
-        );
-
-        lineChartSvg.append("text")
-        .attr("text-anchor", "end")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 15)
-        .attr("x", -lineChartHeight / 2)
-        .style("fill", "white") 
-        .text("Anzahl");
-
-        lineChartSvg
-          .append("g")
-          .attr("class", "x-axis")
-          .attr("transform", "translate(0," + lineChartHeight + ")")
-          .call(line_xAxis.tickFormat(d3.format("d")))
-          .selectAll("text")
-          .style("text-anchor", "end")
-          .attr("dx", "-1em")
-          .attr("dy", "-0.5em")
-          .attr("transform", "rotate(-90)");
-
-        lineChartSvg.append("text")
-          .attr("text-anchor", "end")
-          .attr("x", lineChartWidth / 2)
-          .attr("y", lineChartHeight + lineChartMargin.bottom - 5)
-          .style("fill", "white") 
-          .text("Jahr");
-
-        lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
-
-        const circlesGroup = lineChartSvg.append("g");
-        for (let i = 0; i < medalDatabyCountryAndYear.length; i++) {
-          lineChartSvg
-            .selectAll(".line")
-            .data(medalDatabyCountryAndYear)
-            .enter()
-            .append("path")
-            .attr("class", "line")
-            .attr("fill", "none")
-            .attr("stroke", (d, i) => colorScale(i))
-            .attr("stroke-width", 2)
-            .attr("d", line);
-
-          circlesGroup
-            .selectAll(`.circle-${i}`)
-            .data(medalDatabyCountryAndYear[i])
-            .enter()
-            .append("circle")
-            .attr("class", `circle-${i}`)
-            .attr("cx", (d) => line_xScale(d.year))
-            .attr("cy", (d) => line_yScale(d.count))
-            .attr("r", 3)
-            .attr("fill", colorScale(i))
-            .append("title")
-            .text(
-              (d) =>
-                `${countriesQueue.queue[i]} (${d.year}): ${d.count} Medaillen`
-            );
-        }
-
-        const legend = lineChartSvg
-          .append("g")
-          .attr("class", "legend")
-          .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
-          .selectAll("g")
-          .data(countriesQueue.getQueue())
-          .enter()
-          .append("g");
-
-        legend
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", (d, i) => i * 20)
-          .attr("width", 10)
-          .attr("height", 10)
-          .attr("fill", (d, i) => colorScale(i));
-
-        legend
-          .append("text")
-          .attr("x", 15)
-          .attr("y", (d, i) => i * 20 + 9)
-          .style("fill", "white")
-          .text((d) => d);
-
-        const brushX = d3
-          .brushX()
-          .extent([
-            [0, 0],
-            [lineChartWidth, lineChartHeight],
-          ])
-          .on("end", brushed);
-
-        lineChartSvg.append("g").attr("class", "brushX").call(brushX);
-        
-
-        function brushed() {
-          if (!d3.event.sourceEvent) return;
-
-          const selection = d3.event.selection;
-
-          if (selection) {
-            line_xScale.domain([
-              line_xScale.invert(selection[0]),
-              line_xScale.invert(selection[1]),
-            ]);
-            setTimeout(() => {
-              lineChartSvg.select(".brushX").call(brushX.move, null);
-            }, 100); // the zoom animation takes time, hence the delay
-          } else {
-            line_xScale.domain([
-              d3.min(
-                medalDatabyCountryAndYear.reduce(
-                  (acc, countryData) => acc.concat(countryData),
-                  []
-                ),
-                (d) => d.year
-              ) - 5,
-              d3.max(
-                medalDatabyCountryAndYear.reduce(
-                  (acc, countryData) => acc.concat(countryData),
-                  []
-                ),
-                (d) => d.year
-              ) + 5,
-            ]);
-          }
-
-          updateLineChart();
-        }
-
-        function updateLineChart() {
-          const filteredData = medalDatabyCountryAndYear.map((countryData) => {
-            return countryData.filter(
-              (d) =>
-                d.year >= line_xScale.domain()[0] &&
-                d.year <= line_xScale.domain()[1]
-            );
-          });
-
-          lineChartSvg
-            .select(".x-axis")
-            .call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
-
-          lineChartSvg
-            .selectAll(".line")
-            .data(filteredData)
-            .attr("d", (d) => line(d));
-
-          circlesGroup.selectAll("circle").remove();
-
-          for (let i = 0; i < filteredData.length; i++) {
-            circlesGroup
-              .selectAll(`.circle-${i}`)
-              .data(filteredData[i])
-              .enter()
-              .append("circle")
-              .attr("class", `circle-${i}`)
-              .attr("cx", (d) => line_xScale(d.year))
-              .attr("cy", (d) => line_yScale(d.count))
-              .attr("r", 3)
-              .attr("fill", colorScale(i))
-              .append("title")
-              .text(
-                (d) =>
-                  `${countriesQueue.queue[i]} (${d.year}): ${d.count} Medaillen`
-              );
-          }
-
-          lineChartSvg
-            .select(".x-axis")
-            .selectAll("text")
-            .style("text-anchor", "end")
-            .attr("dx", "-1em")
-            .attr("dy", "-0.5em")
-            .attr("transform", "rotate(-90)");
-        }
+        createLineChart(athletData, countriesLineChart);
 
         clearInterval(rotationTimer);
       }
@@ -725,35 +501,9 @@ function weight_medals(medals) {
   return medals[0] * 3 + medals[1] * 2 + medals[2] * 1;
 }
 
-class MaxSizeQueue {
-  constructor(maxSize) {
-    this.queue = [];
-    this.maxSize = maxSize;
-  }
-
-  enqueue(item) {
-    if (this.queue.includes(item)) {
-      this.queue = [];
-    }
-
-    this.queue.push(item);
-    if (this.queue.length > this.maxSize) {
-      this.queue.shift();
-    }
-  }
-
-  getQueue() {
-    return this.queue;
-  }
-
-  clear() {
-    this.queue = [];
-  }
-}
-
-function getDataLinechart(athletData, countriesQueue) {
+function getDataLinechart(athletData, arr) {
   let results = [];
-  countriesQueue.queue.forEach((country) => {
+  arr.forEach((country) => {
     const countryAthletes = athletData.filter(
       (athlete) => athlete.Country === country
     );
@@ -774,4 +524,280 @@ function getDataLinechart(athletData, countriesQueue) {
     results.push(medalDataByYear);
   });
   return results;
+}
+
+function createLineChart(athletData, countriesLineChart) {
+  d3.selectAll(".selectionButton").each(function(d, i) {
+    if (d3.select(`#country${i+1}`).property("value") != "") {
+      countriesLineChart[i+1] = d3.select(`#country${i+1}`).property("value");
+    }
+    else {
+      countriesLineChart.length = 1;
+    }
+  });
+
+  let medalDatabyCountryAndYear = getDataLinechart(
+    athletData,
+    countriesLineChart
+  );
+  d3.select("#country-line-plot").select("svg").remove();
+
+  const lineChartWidth = 460;
+  const lineChartHeight = 200;
+  const lineChartMargin = { top: 10, right: 250, bottom: 50, left: 60 };
+
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+  const lineChartSvg = d3
+    .select("#country-line-plot")
+    .append("svg")
+    .attr(
+      "width",
+      lineChartWidth + lineChartMargin.left + lineChartMargin.right
+    )
+    .attr(
+      "height",
+      lineChartHeight + lineChartMargin.top + lineChartMargin.bottom
+    )
+    .append("g")
+    .attr(
+      "transform",
+      "translate(" +
+        lineChartMargin.left +
+        "," +
+        lineChartMargin.top +
+        ")"
+    );
+
+  const line_xScale = d3
+    .scaleLinear()
+    .domain([
+      d3.min(
+        medalDatabyCountryAndYear.reduce(
+          (acc, countryData) => acc.concat(countryData),
+          []
+        ),
+        (d) => d.year
+      ) - 5,
+      d3.max(
+        medalDatabyCountryAndYear.reduce(
+          (acc, countryData) => acc.concat(countryData),
+          []
+        ),
+        (d) => d.year
+      ) + 5,
+    ])
+    .range([0, lineChartWidth]);
+  const line_yScale = d3
+    .scaleLinear()
+    .domain([
+      0,
+      d3.max(
+        medalDatabyCountryAndYear.reduce(
+          (acc, countryData) => acc.concat(countryData),
+          []
+        ),
+        (d) => Math.ceil(d.count / 10) * 10
+      ),
+    ])
+    .range([lineChartHeight, 0]);
+
+  const line = d3
+    .line()
+    .x((d) => line_xScale(d.year))
+    .y((d) => line_yScale(d.count));
+
+  const line_xAxis = d3.axisBottom(line_xScale);
+  line_xAxis.ticks(
+    (d3.extent(
+      medalDatabyCountryAndYear.reduce(
+        (acc, countryData) => acc.concat(countryData),
+        []
+      ),
+      (d) => d.year
+    )[1] -
+      d3.extent(
+        medalDatabyCountryAndYear.reduce(
+          (acc, countryData) => acc.concat(countryData),
+          []
+        ),
+        (d) => d.year
+      )[0]) /
+      5
+  );
+
+  lineChartSvg.append("text")
+  .attr("text-anchor", "end")
+  .attr("transform", "rotate(-90)")
+  .attr("y", -margin.left + 15)
+  .attr("x", -lineChartHeight / 2)
+  .style("fill", "white") 
+  .text("Anzahl");
+
+  lineChartSvg
+    .append("g")
+    .attr("class", "x-axis")
+    .attr("transform", "translate(0," + lineChartHeight + ")")
+    .call(line_xAxis.tickFormat(d3.format("d")))
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-1em")
+    .attr("dy", "-0.5em")
+    .attr("transform", "rotate(-90)");
+
+  lineChartSvg.append("text")
+    .attr("text-anchor", "end")
+    .attr("x", lineChartWidth / 2)
+    .attr("y", lineChartHeight + lineChartMargin.bottom - 5)
+    .style("fill", "white") 
+    .text("Jahr");
+
+  lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
+
+  const circlesGroup = lineChartSvg.append("g");
+  for (let i = 0; i < medalDatabyCountryAndYear.length; i++) {
+    lineChartSvg
+      .selectAll(".line")
+      .data(medalDatabyCountryAndYear)
+      .enter()
+      .append("path")
+      .attr("class", "line")
+      .attr("fill", "none")
+      .attr("stroke", (d, i) => colorScale(i))
+      .attr("stroke-width", 2)
+      .attr("d", line);
+
+    circlesGroup
+      .selectAll(`.circle-${i}`)
+      .data(medalDatabyCountryAndYear[i])
+      .enter()
+      .append("circle")
+      .attr("class", `circle-${i}`)
+      .attr("cx", (d) => line_xScale(d.year))
+      .attr("cy", (d) => line_yScale(d.count))
+      .attr("r", 3)
+      .attr("fill", colorScale(i))
+      .append("title")
+      .text(
+        (d) =>
+          `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+      );
+  }
+
+  const legend = lineChartSvg
+    .append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
+    .selectAll("g")
+    .data(countriesLineChart)
+    .enter()
+    .append("g");
+
+  legend
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", (d, i) => i * 20)
+    .attr("width", 10)
+    .attr("height", 10)
+    .attr("fill", (d, i) => colorScale(i));
+
+  legend
+    .append("text")
+    .attr("x", 15)
+    .attr("y", (d, i) => i * 20 + 9)
+    .style("fill", "white")
+    .text((d) => d);
+
+  const brushX = d3
+    .brushX()
+    .extent([
+      [0, 0],
+      [lineChartWidth, lineChartHeight],
+    ])
+    .on("end", brushed);
+
+  lineChartSvg.append("g").attr("class", "brushX").call(brushX);
+  
+
+  function brushed() {
+    if (!d3.event.sourceEvent) return;
+
+    const selection = d3.event.selection;
+
+    if (selection) {
+      line_xScale.domain([
+        line_xScale.invert(selection[0]),
+        line_xScale.invert(selection[1]),
+      ]);
+      setTimeout(() => {
+        lineChartSvg.select(".brushX").call(brushX.move, null);
+      }, 100); // the zoom animation takes time, hence the delay
+    } else {
+      line_xScale.domain([
+        d3.min(
+          medalDatabyCountryAndYear.reduce(
+            (acc, countryData) => acc.concat(countryData),
+            []
+          ),
+          (d) => d.year
+        ) - 5,
+        d3.max(
+          medalDatabyCountryAndYear.reduce(
+            (acc, countryData) => acc.concat(countryData),
+            []
+          ),
+          (d) => d.year
+        ) + 5,
+      ]);
+    }
+
+    updateLineChart();
+  }
+
+  function updateLineChart() {
+    const filteredData = medalDatabyCountryAndYear.map((countryData) => {
+      return countryData.filter(
+        (d) =>
+          d.year >= line_xScale.domain()[0] &&
+          d.year <= line_xScale.domain()[1]
+      );
+    });
+
+    lineChartSvg
+      .select(".x-axis")
+      .call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
+
+    lineChartSvg
+      .selectAll(".line")
+      .data(filteredData)
+      .attr("d", (d) => line(d));
+
+    circlesGroup.selectAll("circle").remove();
+
+    for (let i = 0; i < filteredData.length; i++) {
+      circlesGroup
+        .selectAll(`.circle-${i}`)
+        .data(filteredData[i])
+        .enter()
+        .append("circle")
+        .attr("class", `circle-${i}`)
+        .attr("cx", (d) => line_xScale(d.year))
+        .attr("cy", (d) => line_yScale(d.count))
+        .attr("r", 3)
+        .attr("fill", colorScale(i))
+        .append("title")
+        .text(
+          (d) =>
+            `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+        );
+    }
+
+    lineChartSvg
+      .select(".x-axis")
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-1em")
+      .attr("dy", "-0.5em")
+      .attr("transform", "rotate(-90)");
+  }
 }
