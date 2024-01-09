@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const lineChartWidth = 460;
         const lineChartHeight = 200;
-        const lineChartMargin = { top: 10, right: 250, bottom: 40, left: 60 };
+        const lineChartMargin = { top: 10, right: 250, bottom: 50, left: 60 };
 
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -517,6 +517,14 @@ document.addEventListener("DOMContentLoaded", function () {
             5
         );
 
+        lineChartSvg.append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 15)
+        .attr("x", -lineChartHeight / 2)
+        .style("fill", "white") 
+        .text("Anzahl");
+
         lineChartSvg
           .append("g")
           .attr("class", "x-axis")
@@ -527,6 +535,13 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("dx", "-1em")
           .attr("dy", "-0.5em")
           .attr("transform", "rotate(-90)");
+
+        lineChartSvg.append("text")
+          .attr("text-anchor", "end")
+          .attr("x", lineChartWidth / 2)
+          .attr("y", lineChartHeight + lineChartMargin.bottom - 5)
+          .style("fill", "white") 
+          .text("Jahr");
 
         lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
 
@@ -593,6 +608,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .on("end", brushed);
 
         lineChartSvg.append("g").attr("class", "brushX").call(brushX);
+        
 
         function brushed() {
           if (!d3.event.sourceEvent) return;

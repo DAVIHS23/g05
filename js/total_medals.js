@@ -1,5 +1,5 @@
 // set the dimensions and margins of the graph
-const margin = { top: 30, right: 30, bottom: 70, left: 60 },
+const margin = { top: 30, right: 30, bottom: 70, left: 120 },
   width = 460 - margin.right,
   height = 400 - margin.top - margin.bottom;
 
@@ -49,6 +49,21 @@ function updateChart() {
   const y = d3.scaleBand().domain(countries).range([0, height]).padding(0.2);
   svg.selectAll(".y-axis").remove();
   svg.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
+
+  svg.append("text")
+   .attr("text-anchor", "end")
+   .attr("transform", "rotate(-90)")
+   .attr("y", -margin.left + 10)
+   .attr("x", -height / 2)
+   .style("fill", "white") 
+   .text("Land");
+
+  svg.append("text")
+   .attr("text-anchor", "end")
+   .attr("x", width / 2)
+   .attr("y", height + margin.bottom - 10)
+   .style("fill", "white") 
+   .text("Anzahl");
 
   const x = d3.scaleLinear().domain([0, 6000]).range([0, width]);
   svg.selectAll(".x-axis").remove();
