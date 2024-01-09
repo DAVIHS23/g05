@@ -2,9 +2,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const mapContainer = d3.select("#map-container");
   const graphsContainer = d3.select("#graphs-container");
 
+  const swissFormat = {
+    decimal: ".",
+    thousands: "'",
+    grouping: [3],
+    currency: ["", " CHF"]
+  };
+
+  const locale = d3.formatLocale(swissFormat);
+  const format = locale.format(",");
+
   let rotationTimer;
   let selectedCountry = null;
   let lastSelectedPath = null;
+
+  const countriesQueue = new MaxSizeQueue(4);
 
   // Get the dimensions of the map container
   const mapWidth = mapContainer.node().getBoundingClientRect().width;
@@ -32,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
         graphsContainer.transition().duration(500).style("width", "0");
         d3.select(clickedPath).classed("selected-country", false);
         lastSelectedPath = null;
+        countriesQueue.clear();
       } else {
         // Deselect the last selected path if exists
         if (lastSelectedPath) {
@@ -47,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       // Clicked outside the world map, deselect the country and close the graphs container
       selectedCountry = null;
+      countriesQueue.clear();
       mapContainer.transition().duration(50).style("margin-left", "0");
       graphsContainer.transition().duration(500).style("width", "0");
       // Deselect the last selected path if exists
@@ -146,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 30); // Adjust the interval
     }
 
-    const countriesQueue = new MaxSizeQueue(4);
 
     function handleClick(d) {
       if (selectedCountry !== d.properties.name) {
@@ -165,8 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let countryName = d.properties.name;
 
         const countryRank = "placeholder";
-
-        countriesQueue.enqueue(countryName);
 
         d3.select(this).classed("selected-country", true);
         d3.select("#graphs-container")
@@ -205,8 +216,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .selectAll("h4.country-specifics")
             .style("display", "none");
 
+          countriesQueue.clear();
+
           return;
         }
+
+        countriesQueue.enqueue(countryName);
 
         // Define a scale based on the maximum gold medals
         const yScale = d3
@@ -225,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("height", 250);
 
         // Add y-axis
-        const yAxis = d3.axisLeft(yScale);
+        const yAxis = d3.axisLeft(yScale).tickFormat(format);
         barChart
           .append("g")
           .attr("class", "y-axis")
@@ -237,34 +252,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Check if countryMedals array is not empty
         if (maxMedals > 0) {
-          // Append bars with initial height
-          barChart
-            .selectAll("rect")
-            .data(countryMedals)
-            .enter()
-            .append("rect")
-            .attr("x", (d, i) => i * (barWidth + barSpacing) + 40)
-            .attr("y", (d) => yScale(0))
-            .attr("width", barWidth)
-            .attr("height", 0)
-            .attr("fill", (d, i) => medalColors[i])
-            .transition()
-            .duration(800)
-            .attr("y", (d) => yScale(d))
-            .attr("height", (d) => 200 - yScale(d))
-            .delay((d, i) => i * 100);
+        // Append bars with initial height
+        barChart
+          .selectAll("rect")
+          .data(countryMedals)
+          .enter()
+          .append("rect")
+          .attr("x", (d, i) => i * (barWidth + barSpacing) + 40)
+          .attr("y", (d) => yScale(d))
+          .attr("width", barWidth)
+          .attr("height", (d) => 200 - yScale(d))
+          .attr("fill", (d, i) => medalColors[i])
+          .transition()
+          .duration(800)
+          .delay((d, i) => i * 100);
+          
+          
+        barChart.selectAll("rect").on("mouseover", function (d, i) {
+          let text = "";
+          if (i == 0) {
+            text = `${d} 🥇`;
+          }
+          else if (i == 1) {
+            text = `${d} 🥈`;
+          }
+          else 
+          {
+            text = `${d} 🥉`;
+          }
+          tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
+          }).on('mousemove', function () {
+            tooltip.style("top", d3.event.pageY - 10 + "px").style("left", d3.event.pageX + 10 + "px");
+          })
+          .on("mouseout", function () {
+            tooltip.html("").style("visibility", "hidden");
+          });
 
-          barChart
-            .selectAll("text")
-            .data(countryMedals)
-            .text((d, i) => {
-              if (i === 0) return `🥇: ${d}`;
-              else if (i === 1) return `🥈: ${d}`;
-              else if (i === 2) return `🥉: ${d}`;
-            })
-            .attr("x", (d, i) => i * (barWidth + barSpacing) + mapWidth / 4)
+          let tooltip = d3
+            .select('body')
+            .append('div')
+            .attr('class', 'd3-tooltip')
+            .style('position', 'absolute')
+            .style('z-index', '10')
+            .style('visibility', 'hidden')
+            .style('padding', '10px')
+            .style('background', 'rgba(0,0,0,0.6)')
+            .style('border-radius', '4px')
+            .style('color', '#fff');
 
-            .attr("y", (d) => yScale(d) - 190);
+            barChart.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0)
+            .attr("x", - (250 / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("fill", "white") 
+            .text("Anzahl");
+
+
+            barChart.append("text")             
+            .attr("transform", "translate(" + (690 / 2 + 40) + " ," + (250 - 20) + ")")
+            .style("text-anchor", "middle")
+            .style("fill", "white") 
+            .text("Medaillentyp");
         }
 
         // Get athletes data for the clicked country
@@ -298,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
         barPlotContainer.selectAll("*").remove();
 
         // set the dimensions and margins of the graph
-        var margin = { top: 10, right: 30, bottom: 20, left: 60 },
+        var margin = { top: 10, right: 30, bottom: 60, left: 40 },
           width = 460 - margin.left - margin.right,
           height = 400 - margin.top - margin.bottom;
 
@@ -358,11 +408,25 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("class", "athlete-label")
           .attr("x", 5)
           .attr("y", (d) => y(d.name) + y.bandwidth() / 2)
-          .text((d) => `${d.name} - ${d.count} medals`)
+          .text((d) => `${d.name} - ${d.count} Medaillen`)
           .attr("alignment-baseline", "middle")
           .attr("fill", "#fff");
 
-        console.log(countriesQueue.queue);
+        svg.append("text")
+          .attr("text-anchor", "end")
+          .attr("x", width / 2 + margin.left)
+          .attr("y", height + margin.top + 40)
+          .style("fill", "white") 
+          .text("Anzahl");
+
+        svg.append("text")
+          .attr("text-anchor", "end")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left + 25)
+          .attr("x", -margin.top - height / 2)
+          .style("fill", "white") 
+          .text("Athlet");
+
         let medalDatabyCountryAndYear = getDataLinechart(
           athletData,
           countriesQueue
@@ -664,6 +728,10 @@ class MaxSizeQueue {
 
   getQueue() {
     return this.queue;
+  }
+
+  clear() {
+    this.queue = [];
   }
 }
 
