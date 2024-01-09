@@ -24,22 +24,14 @@
     />
   </head>
   <body>
-    <button
-      type="button"
-      class="hover-button"
-      id="scrollButton"
-      onclick="goToTopFunktion()"
-    >
-      <i class="fa fa-solid fa-angle-up"></i>
-    </button>
     <nav>
       <a href="index.html"><i class="fa fa-fw fa-home"></i></a>
-      <a href="background.html">Background</a>
-      <a href="data.html">Data Sources</a>
-      <a href="visualization.html">Visualization</a>
-      <a href="design.html">Visual Design</a>
-      <a href="references.html">References</a>
-      <a href="contact.html">Contact</a>
+      <a href="background.html">Projektinformationen</a>
+      <a href="data.html">Daten</a>
+      <a href="findings.html">Ergebnisse</a>
+      <a href="design.html">Design Entscheidungen</a>
+      <a href="references.html">Referenzen</a>
+      <a href="contact.html">Team</a>
     </nav>
 
     <section id="home">
@@ -63,19 +55,22 @@
 
               <h4 class="country-specifics">Ländervergleich</h4>
               <div id="country-line-plot"></div>
-
-              <div id="total-medals-bar-plot">
-                <div>
-                  <h4>Globale Medaillensieger/ -verlierer</h4>
-                  <label for="medalDropdown"></label>
-                  <select id="dropdown-menu" onchange="updateChart()">
-                    <option value="Top">Top 10 Länder</option>
-                    <option value="Bottom">Bottom 10 Länder</option>
-                  </select>
-                </div>
-              </div>
             </div>
           </div>
+        </div>
+        <div style="border-top: 1px solid white; margin: 20px 0"></div>
+      </div>
+
+      <div id="total-medals-bar-plot">
+        <div>
+          <h4>Globale Top 10 Medaillensieger</h4>
+          <label for="dropdown-menu">Wähle Sieger nach:</label>
+          <select id="dropdown-menu" onchange="updateChart()">
+            <option value="total">Top Total</option>
+            <option value="gold">Top Gold</option>
+            <option value="silver">Top Silber</option>
+            <option value="bronze">Top Bronze</option>
+          </select>
         </div>
       </div>
     </section>
@@ -88,6 +83,14 @@
         >
       </div>
     </footer>
+    <button
+      type="button"
+      class="hover-button"
+      id="scrollButton"
+      onclick="goToTopFunktion()"
+    >
+      <i class="fa fa-solid fa-angle-up"></i>
+    </button>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <script src="js/main.js"></script>
