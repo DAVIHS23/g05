@@ -4,17 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let rotationTimer;
 
-  mapContainer.on("click", function () {
-    // Move the map to the left when clicked
-    mapContainer.transition().duration(50).style("margin-left", "0");
-    // Expand the graphs container
-    graphsContainer.transition().duration(500).style("width", "100%");
-
-    //svg.attr("height", mapContainer.node().getBoundingClientRect().height);
-
-    clearInterval(rotationTimer);
-  });
-
   // Get the dimensions of the map container
   const mapWidth = mapContainer.node().getBoundingClientRect().width;
   const mapHeight = mapContainer.node().getBoundingClientRect().height;
@@ -24,7 +13,19 @@ document.addEventListener("DOMContentLoaded", function () {
     .select("#map-container")
     .append("svg")
     .attr("width", mapWidth)
-    .attr("height", mapHeight);
+    .attr("height", mapHeight)
+    .on("click", handleClickOnContainer);
+
+
+  function handleClickOnContainer() {
+    if (d3.event.target.tagName == "svg") {
+      // reset css style
+      graphsContainer.transition().duration(500).style("width", "0");
+      mapContainer.transition().duration(50).style("margin-left", "auto");
+      // to-do: reset color of selected country
+    }
+  }
+
 
   Promise.all([
     d3.json("Data/countries-110m.json"),
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let medals = map_country_medals.get(countryName) || [0.01, 0.01, 0.01]; // Prevent a country from having no or zero values
         return colorScale(weight_medals(medals));
       })
+      .attr("countryName", (d) => {return d.properties.name})
       .on("mouseover", handleMouseOver)
       .on("mouseout", handleMouseOut)
       .on("click", handleClick);
@@ -112,6 +114,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const countriesQueue = new MaxSizeQueue(4);
 
     function handleClick(d) {
+      // Move the map to the left when clicked
+      mapContainer.transition().duration(50).style("margin-left", "0");
+      // Expand the graphs container
+      graphsContainer.transition().duration(500).style("width", "100%");
+
+      //svg.attr("height", mapContainer.node().getBoundingClientRect().height);
+
+      clearInterval(rotationTimer);
+
       // Remove the "selected" class from previously selected countries
       countriesPaths.classed("selected-country", false);
 
@@ -120,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
       countriesQueue.enqueue(countryName);
 
       d3.select(this).classed("selected-country", true);
+      d3.select("#graphs-container").selectAll("h4.country-specifics").style("display", "block");
 
       let country_information = d3
         .select("#country-overview")
@@ -137,6 +149,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Calculate the maximum medals across all medaltypes for the selceted country
       const maxMedals = d3.max(countryMedals);
+
+      // No medals won, return
+      if (maxMedals < 1) {
+        d3.select("#country-overview").selectAll("*").remove();
+        d3.select("#athlete-bar-plot").selectAll("*").remove();
+        d3.select("#country-line-plot").selectAll("*").remove();
+
+        d3.select("#country-overview").html(`Für das Land ${countryName} sind keine Medaillen vorhanden.`);
+        d3.select("#graphs-container").selectAll("h4.country-specifics").style("display", "none");
+
+        return;
+      }
 
       // Define a scale based on the maximum gold medals
       const yScale = d3
