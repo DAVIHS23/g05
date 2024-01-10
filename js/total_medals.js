@@ -1,3 +1,13 @@
+const swissFormat = {
+  decimal: ".",
+  thousands: "'",
+  grouping: [3],
+  currency: ["", " CHF"]
+};
+
+const locale = d3.formatLocale(swissFormat);
+const format = locale.format(",");
+
 // set the dimensions and margins of the graph
 const margin = { top: 30, right: 30, bottom: 70, left: 120 },
   width = 460 - margin.right,
@@ -71,7 +81,7 @@ function updateChart() {
     .append("g")
     .attr("class", "x-axis")
     .attr("transform", `translate(0, ${height})`)
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(x).tickFormat(format));
 
   svg.selectAll("rect").remove();
 

@@ -30,16 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .attr("height", mapHeight)
     .on("click", handleClickOnContainer);
 
-  function resetDropDown() {
-    d3.selectAll(".selectionButton").each(function(d, i) {
-      let dropdown = d3.select(this);
-
-      dropdown.style("visibility", "hidden");
-      dropdown.property("value", "");
-      dropdown.property("text", `Vergleichsland`);
-    });
-  }
-
   function handleClickOnContainer() {
     const clickedPath = d3.event.target;
     const isCountryClick = clickedPath.tagName === "path";
@@ -188,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let countryName = d.properties.name;
 
-        const countryRank = "placeholder";
+        const map_country_rank = calcRanks(map_country_medals);
 
         d3.select(this).classed("selected-country", true);
         d3.select("#graphs-container")
@@ -199,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .select("#country-overview")
           .html("Land: " + countryName + "<br/>")
           .append("span")
-          .html("Rank: " + countryRank);
+          .html(`Rang: #${map_country_rank.get(countryName)}`);
         country_information.selectAll("*").remove();
 
         countryMedals = map_country_medals.get(countryName) || [0, 0, 0]; // Prevent a country from having no data
@@ -800,4 +790,39 @@ function createLineChart(athletData, countriesLineChart) {
       .attr("dy", "-0.5em")
       .attr("transform", "rotate(-90)");
   }
+}
+
+function resetDropDown() {
+  d3.selectAll(".selectionButton").each(function(d, i) {
+    let dropdown = d3.select(this);
+
+    dropdown.style("visibility", "hidden");
+    dropdown.property("value", "");
+    dropdown.property("text", `Vergleichsland`);
+  });
+}
+
+function calcRanks(map_country_medals) {
+  let medalTotals = Array.from(map_country_medals, ([country, medals]) => {
+    let total = medals.reduce((sum, current) => sum + current, 0);
+    return { country, total };
+  });
+
+  medalTotals.sort((a, b) => b.total - a.total);
+
+  let rankMap = new Map();
+  let currentRank = 1;
+  let previousTotal = null;
+  let rankCounter = 1;
+
+  medalTotals.forEach(item => {
+    if (item.total !== previousTotal) {
+      currentRank = rankCounter;
+      previousTotal = item.total;
+    }
+    rankMap.set(item.country, currentRank);
+    rankCounter++;
+  });
+
+  return rankMap;
 }
