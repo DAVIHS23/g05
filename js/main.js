@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     decimal: ".",
     thousands: "'",
     grouping: [3],
-    currency: ["", " CHF"]
+    currency: ["", " CHF"],
   };
 
   const locale = d3.formatLocale(swissFormat);
@@ -100,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       0
     );
+    createGenderPieChart(athletData);
 
     const map_country_rank = calcRanks(map_country_medals);
 
@@ -145,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Function to handle mouseover events
     function handleMouseOver() {
       let tempColor = this.getAttribute("fill");
-      d3.select(this).attr("fill", "#3498db");
+      d3.select(this).attr("fill", "#87ceeb");
       d3.select(this).attr("tempColor", tempColor);
       // Pause the continuous rotation when the mouse enters the globe
       clearInterval(rotationTimer);
@@ -211,34 +212,34 @@ document.addEventListener("DOMContentLoaded", function () {
             .selectAll("h4.country-specifics")
             .style("display", "none");
 
-            countriesLineChart = [];
+          countriesLineChart = [];
 
           return;
         }
 
         countriesLineChart[0] = countryName;
 
-        countryNamesFiltered = Array.from(map_country_medals.keys()).filter(country => country != countryName).sort();
+        countryNamesFiltered = Array.from(map_country_medals.keys())
+          .filter((country) => country != countryName)
+          .sort();
 
-        d3.selectAll(".selectionButton").each(function(d, i) {
+        d3.selectAll(".selectionButton").each(function (d, i) {
           let dropdown = d3.select(this);
 
-          dropdown.on("change", function() {
+          dropdown.on("change", function () {
             createLineChart(athletData, countriesLineChart);
           });
 
           if (dropdown.selectAll("option").size() < 1) {
-            dropdown.append("option")
-            .text(`Vergleichsland`)
-            .attr("value", "");
-        
-            dropdown.selectAll(null)
+            dropdown.append("option").text(`Vergleichsland`).attr("value", "");
+
+            dropdown
+              .selectAll(null)
               .data(countryNamesFiltered)
               .enter()
               .append("option")
-              .text(d => d)
-              .attr("value", d => d);
-
+              .text((d) => d)
+              .attr("value", (d) => d);
           }
         });
 
@@ -251,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .range([200, 20]);
 
         // Create a bar chart
-        const barWidth = 690 / 3; // needs adjustments!
+        const barWidth = 690 / 3;
         const barSpacing = 10;
 
         const barChart = d3
@@ -273,68 +274,76 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Check if countryMedals array is not empty
         if (maxMedals > 0) {
-        // Append bars with initial height
-        barChart
-          .selectAll("rect")
-          .data(countryMedals)
-          .enter()
-          .append("rect")
-          .attr("x", (d, i) => i * (barWidth + barSpacing) + 40)
-          .attr("y", (d) => yScale(d))
-          .attr("width", barWidth)
-          .attr("height", (d) => 200 - yScale(d))
-          .attr("fill", (d, i) => medalColors[i])
-          .transition()
-          .duration(800)
-          .delay((d, i) => i * 100);
-          
-          
-        barChart.selectAll("rect").on("mouseover", function (d, i) {
-          let text = "";
-          if (i == 0) {
-            text = `${d} 🥇`;
-          }
-          else if (i == 1) {
-            text = `${d} 🥈`;
-          }
-          else 
-          {
-            text = `${d} 🥉`;
-          }
-          tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
-          }).on('mousemove', function () {
-            tooltip.style("top", d3.event.pageY - 10 + "px").style("left", d3.event.pageX + 10 + "px");
-          })
-          .on("mouseout", function () {
-            tooltip.html("").style("visibility", "hidden");
-          });
+          // Append bars with initial height
+          barChart
+            .selectAll(".country-overview-plot")
+            .data(countryMedals)
+            .enter()
+            .append("rect")
+            .attr("class", "country-overview-plot")
+            .attr("x", (d, i) => i * (barWidth + barSpacing) + 40)
+            .attr("y", (d) => yScale(0))
+            .attr("width", barWidth)
+            .attr("height", 0)
+            .attr("fill", (d, i) => medalColors[i])
+            .transition()
+            .duration(800)
+            .attr("y", (d) => yScale(d))
+            .attr("height", (d) => 200 - yScale(d))
+            .delay((d, i) => i * 100);
+
+          barChart
+            .selectAll("rect")
+            .on("mouseover", function (d, i) {
+              let text = "";
+              if (i == 0) {
+                text = `${d} 🥇`;
+              } else if (i == 1) {
+                text = `${d} 🥈`;
+              } else {
+                text = `${d} 🥉`;
+              }
+              tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
+            })
+            .on("mousemove", function () {
+              tooltip
+                .style("top", d3.event.pageY - 10 + "px")
+                .style("left", d3.event.pageX + 10 + "px");
+            })
+            .on("mouseout", function () {
+              tooltip.html("").style("visibility", "hidden");
+            });
 
           let tooltip = d3
-            .select('body')
-            .append('div')
-            .attr('class', 'd3-tooltip')
-            .style('position', 'absolute')
-            .style('z-index', '10')
-            .style('visibility', 'hidden')
-            .style('padding', '10px')
-            .style('background', 'rgba(0,0,0,0.6)')
-            .style('border-radius', '4px')
-            .style('color', '#fff');
+            .select("body")
+            .append("div")
+            .attr("class", "d3-tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("padding", "10px")
+            .style("background", "rgba(0,0,0,0.6)")
+            .style("border-radius", "4px")
+            .style("color", "#fff");
 
-            barChart.append("text")
+          barChart
+            .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 0)
-            .attr("x", - (250 / 2))
+            .attr("x", -(250 / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
-            .style("fill", "white") 
+            .style("fill", "white")
             .text("Anzahl");
 
-
-            barChart.append("text")             
-            .attr("transform", "translate(" + (690 / 2 + 40) + " ," + (250 - 20) + ")")
+          barChart
+            .append("text")
+            .attr(
+              "transform",
+              "translate(" + (690 / 2 + 40) + " ," + (250 - 20) + ")"
+            )
             .style("text-anchor", "middle")
-            .style("fill", "white") 
+            .style("fill", "white")
             .text("Medaillentyp");
         }
 
@@ -370,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // set the dimensions and margins of the graph
         var margin = { top: 10, right: 30, bottom: 60, left: 40 },
-          width = 460 - margin.left - margin.right,
+          width = 760 - margin.left - margin.right,
           height = 400 - margin.top - margin.bottom;
 
         // Set up the SVG container for the bar plot
@@ -414,11 +423,43 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("y", (d) => y(d.name))
           .attr("width", 0)
           .attr("height", y.bandwidth())
-          .attr("fill", "#3498db")
+          .attr("fill", "#556b2f")
+          .on("mouseover", function (d, i) {
+            const athleteData = top10MedalData[i];
+            const medalText =
+              athleteData.count === 1 ? "Medaille" : "Medaillen";
+            const text = `${athleteData.count} ${medalText}`;
+            //const text = `${athleteData.name}: ${athleteData.count} ${medalText}`;
+
+            tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
+          })
           .transition()
           .duration(800)
           .attr("width", (d) => x(d.count))
           .delay((d, i) => i * 100);
+
+        svg
+
+          .on("mousemove", function () {
+            tooltip
+              .style("top", d3.event.pageY - 10 + "px")
+              .style("left", d3.event.pageX + 10 + "px");
+          })
+          .on("mouseout", function () {
+            tooltip.html("").style("visibility", "hidden");
+          });
+
+        let tooltip = d3
+          .select("body")
+          .append("div")
+          .attr("class", "d3-tooltip")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("padding", "10px")
+          .style("background", "rgba(0,0,0,0.6)")
+          .style("border-radius", "4px")
+          .style("color", "#fff");
 
         // Add labels for athlete names
         svg
@@ -429,25 +470,26 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("class", "athlete-label")
           .attr("x", 5)
           .attr("y", (d) => y(d.name) + y.bandwidth() / 2)
-          .text((d) => `${d.name} - ${d.count} Medaillen`)
+          .text((d) => `${d.name}`)
           .attr("alignment-baseline", "middle")
           .attr("fill", "#fff");
 
-        svg.append("text")
+        svg
+          .append("text")
           .attr("text-anchor", "end")
           .attr("x", width / 2 + margin.left)
           .attr("y", height + margin.top + 40)
-          .style("fill", "white") 
+          .style("fill", "white")
           .text("Anzahl");
 
-        svg.append("text")
+        svg
+          .append("text")
           .attr("text-anchor", "end")
           .attr("transform", "rotate(-90)")
           .attr("y", -margin.left + 25)
           .attr("x", -margin.top - height / 2)
-          .style("fill", "white") 
+          .style("fill", "white")
           .text("Athlet");
-
 
         createLineChart(athletData, countriesLineChart);
 
@@ -510,11 +552,12 @@ function getDataLinechart(athletData, arr) {
 }
 
 function createLineChart(athletData, countriesLineChart) {
-  d3.selectAll(".selectionButton").each(function(d, i) {
-    if (d3.select(`#country${i+1}`).property("value") != "") {
-      countriesLineChart[i+1] = d3.select(`#country${i+1}`).property("value");
-    }
-    else {
+  d3.selectAll(".selectionButton").each(function (d, i) {
+    if (d3.select(`#country${i + 1}`).property("value") != "") {
+      countriesLineChart[i + 1] = d3
+        .select(`#country${i + 1}`)
+        .property("value");
+    } else {
       countriesLineChart.length = 1;
     }
   });
@@ -525,8 +568,8 @@ function createLineChart(athletData, countriesLineChart) {
   );
   d3.select("#country-line-plot").select("svg").remove();
 
-  const lineChartWidth = 460;
-  const lineChartHeight = 200;
+  const lineChartWidth = 680;
+  const lineChartHeight = 300;
   const lineChartMargin = { top: 10, right: 250, bottom: 50, left: 60 };
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -545,11 +588,7 @@ function createLineChart(athletData, countriesLineChart) {
     .append("g")
     .attr(
       "transform",
-      "translate(" +
-        lineChartMargin.left +
-        "," +
-        lineChartMargin.top +
-        ")"
+      "translate(" + lineChartMargin.left + "," + lineChartMargin.top + ")"
     );
 
   const line_xScale = d3
@@ -609,13 +648,14 @@ function createLineChart(athletData, countriesLineChart) {
       5
   );
 
-  lineChartSvg.append("text")
-  .attr("text-anchor", "end")
-  .attr("transform", "rotate(-90)")
-  .attr("y", -margin.left + 15)
-  .attr("x", -lineChartHeight / 2)
-  .style("fill", "white") 
-  .text("Anzahl");
+  lineChartSvg
+    .append("text")
+    .attr("text-anchor", "end")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -margin.left + 15)
+    .attr("x", -lineChartHeight / 2)
+    .style("fill", "white")
+    .text("Anzahl");
 
   lineChartSvg
     .append("g")
@@ -628,11 +668,12 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("dy", "-0.5em")
     .attr("transform", "rotate(-90)");
 
-  lineChartSvg.append("text")
+  lineChartSvg
+    .append("text")
     .attr("text-anchor", "end")
     .attr("x", lineChartWidth / 2)
     .attr("y", lineChartHeight + lineChartMargin.bottom - 5)
-    .style("fill", "white") 
+    .style("fill", "white")
     .text("Jahr");
 
   lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
@@ -662,15 +703,14 @@ function createLineChart(athletData, countriesLineChart) {
       .attr("fill", colorScale(i))
       .append("title")
       .text(
-        (d) =>
-          `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+        (d) => `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
       );
   }
 
   const legend = lineChartSvg
     .append("g")
     .attr("class", "legend")
-    .attr("transform", "translate(" + (lineChartWidth + 20) + ", 10)")
+    .attr("transform", "translate(" + lineChartWidth / 2 + ")")
     .selectAll("g")
     .data(countriesLineChart)
     .enter()
@@ -700,7 +740,6 @@ function createLineChart(athletData, countriesLineChart) {
     .on("end", brushed);
 
   lineChartSvg.append("g").attr("class", "brushX").call(brushX);
-  
 
   function brushed() {
     if (!d3.event.sourceEvent) return;
@@ -741,8 +780,7 @@ function createLineChart(athletData, countriesLineChart) {
     const filteredData = medalDatabyCountryAndYear.map((countryData) => {
       return countryData.filter(
         (d) =>
-          d.year >= line_xScale.domain()[0] &&
-          d.year <= line_xScale.domain()[1]
+          d.year >= line_xScale.domain()[0] && d.year <= line_xScale.domain()[1]
       );
     });
 
@@ -770,8 +808,7 @@ function createLineChart(athletData, countriesLineChart) {
         .attr("fill", colorScale(i))
         .append("title")
         .text(
-          (d) =>
-            `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+          (d) => `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
         );
     }
 
@@ -786,7 +823,7 @@ function createLineChart(athletData, countriesLineChart) {
 }
 
 function resetDropDown() {
-  d3.selectAll(".selectionButton").each(function(d, i) {
+  d3.selectAll(".selectionButton").each(function (d, i) {
     let dropdown = d3.select(this);
 
     dropdown.style("visibility", "hidden");
@@ -808,7 +845,7 @@ function calcRanks(map_country_medals) {
   let previousTotal = null;
   let rankCounter = 1;
 
-  medalTotals.forEach(item => {
+  medalTotals.forEach((item) => {
     if (item.total !== previousTotal) {
       currentRank = rankCounter;
       previousTotal = item.total;
@@ -818,4 +855,81 @@ function calcRanks(map_country_medals) {
   });
 
   return rankMap;
+}
+function createGenderPieChart(athleteData) {
+  // Calculate gender counts
+  let maleCount = 0;
+  let femaleCount = 0;
+
+  athleteData.forEach((entry) => {
+    if (entry.Sex === "M") {
+      maleCount++;
+    } else if (entry.Sex === "F") {
+      femaleCount++;
+    }
+  });
+
+  // Create data array for pie chart
+  const genderData = [
+    { gender: "Mann", count: maleCount },
+    { gender: "Frau", count: femaleCount },
+  ];
+
+  // Set up pie chart dimensions
+  const pieWidth = 400;
+  const pieHeight = 400;
+  const pieRadius = Math.min(pieWidth, pieHeight) / 2;
+
+  // Define color scale
+  const colorScale = d3.scaleOrdinal().range(["#3498db", "#e74c3c"]);
+
+  // Create pie chart
+  const pie = d3.pie().value((d) => d.count);
+
+  // Define arc
+  const arc = d3.arc().outerRadius(pieRadius).innerRadius(0);
+
+  // Select the SVG container for the pie chart
+  const pieChartSvg = d3
+    .select("#gender-distribution")
+    .append("svg")
+    .attr("width", pieWidth)
+    .attr("height", pieHeight)
+    .append("g")
+    .attr("transform", `translate(${pieWidth / 2},${pieHeight / 2})`);
+
+  // Create arcs
+  const arcs = pieChartSvg
+    .selectAll(".arc")
+    .data(pie(genderData))
+    .enter()
+    .append("g")
+    .attr("class", "arc");
+
+  // Add path elements to represent the arcs
+  arcs
+    .append("path")
+    .attr("d", arc)
+    .attr("fill", (d) => colorScale(d.data.gender))
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 1);
+
+  // Add labels to the arcs
+  arcs
+    .append("text")
+    .attr("transform", (d) => `translate(${arc.centroid(d)})`)
+    .attr("dy", "0.35em")
+    .text((d) => `${d.data.gender}: ${d.data.count}`)
+    .style("text-anchor", "middle")
+    .style("fill", "white");
+
+  // Add a title to the pie chart
+  pieChartSvg
+    .append("text")
+    .attr("x", 0)
+    .attr("y", -pieHeight / 2 - 10)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("fill", "white")
+    .text("Gender Distribution");
 }
