@@ -101,6 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
       0
     );
 
+    const map_country_rank = calcRanks(map_country_medals);
+
     const colorScale = d3
       .scaleLog()
       .domain([0.01, max_medals_weighted])
@@ -178,8 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let countryName = d.properties.name;
 
-        const map_country_rank = calcRanks(map_country_medals);
-
         d3.select(this).classed("selected-country", true);
         d3.select("#graphs-container")
           .selectAll("h4.country-specifics")
@@ -193,13 +193,6 @@ document.addEventListener("DOMContentLoaded", function () {
         country_information.selectAll("*").remove();
 
         countryMedals = map_country_medals.get(countryName) || [0, 0, 0]; // Prevent a country from having no data
-
-        // Calculate the maximum gold medals across all countries
-        const maxGoldMedals = d3.max(
-          Array.from(map_country_medals.values()).map(
-            (countryMedals) => countryMedals[0]
-          )
-        );
 
         // Calculate the maximum medals across all medaltypes for the selceted country
         const maxMedals = d3.max(countryMedals);
