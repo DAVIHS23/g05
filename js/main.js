@@ -123,6 +123,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Create a path generator
     const path = d3.geoPath().projection(projection);
 
+    svg.append("g")
+      .attr("class", "legendLog")
+      .attr("transform", "translate(20,20)");
+
+    let log_legend = d3.legendColor()
+        .title("Anzahl Medaillen (gewichtet)")
+        .shapeHeight(20)
+        .shapeWidth(50)
+        .orient("horizontal")
+        .cells([0.1, 10, 100, 1000, 10000])
+        .labelFormat(locale.format(",.0f"))
+        .scale(colorScale);
+
+    svg.select(".legendLog")
+        .style("fill", "#FFFFFF")
+        .call(log_legend);
+
     // Draw the map
     const countriesPaths = svg
       .selectAll("path")
