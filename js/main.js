@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     svg.append("g")
       .attr("class", "legendLog")
-      .attr("transform", "translate(20,20)");
+      .attr("transform", `translate(0,${mapHeight*0.93})`); 
 
     let log_legend = d3.legendColor()
         .title("Anzahl Medaillen (gewichtet)")
