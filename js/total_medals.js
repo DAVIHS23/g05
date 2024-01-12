@@ -62,7 +62,7 @@ function updateChart() {
 
   svg
     .append("text")
-    .attr("text-anchor", "end")
+    .attr("text-anchor", "middle")
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 10)
     .attr("x", -height / 2)
@@ -71,7 +71,7 @@ function updateChart() {
 
   svg
     .append("text")
-    .attr("text-anchor", "end")
+    .attr("text-anchor", "middle")
     .attr("x", width / 2)
     .attr("y", height + margin.bottom - 10)
     .style("fill", "white")

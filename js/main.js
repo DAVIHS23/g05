@@ -203,12 +203,14 @@ document.addEventListener("DOMContentLoaded", function () {
           .selectAll("h4.country-specifics")
           .style("display", "block");
 
-        let country_information = d3
-          .select("#country-overview")
-          .html("Land: " + countryName + "<br/>")
-          .append("span")
+        barChart = d3.select("#country-overview");
+        barChart.selectAll("*").remove();
+
+        barChart
+          .append("h5")
+          .html("Land: " + countryName)
+          .append("h5")
           .html(`Rang: #${map_country_rank.get(countryName)}`);
-        country_information.selectAll("*").remove();
 
         countryMedals = map_country_medals.get(countryName) || [0, 0, 0]; // Prevent a country from having no data
 
@@ -223,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
           resetDropDown();
 
           d3.select("#country-overview").html(
-            `Für das Land ${countryName} sind keine Medaillen vorhanden.`
+            `<span>Für das Land ${countryName} sind keine Medaillen vorhanden.</span>`
           );
           d3.select("#graphs-container")
             .selectAll("h4.country-specifics")
@@ -262,107 +264,112 @@ document.addEventListener("DOMContentLoaded", function () {
 
         d3.selectAll(".selectionButton").style("visibility", "visible");
 
+        var margin = { top: 10, right: 50, bottom: 60, left: 30 },
+        width = 760 - margin.left - margin.right,
+        height = 320 - margin.top - margin.bottom;
+
         // Define a scale based on the maximum gold medals
         const yScale = d3
           .scaleLinear()
-          .domain([0, maxMedals > 0 ? maxMedals : 5])
-          .range([200, 20]);
+          .domain([0, maxMedals > 0 ? Math.ceil(maxMedals / 10) * 10 : 5])
+          .range([height, 0]);
 
         // Create a bar chart
-        const barWidth = 690 / 3;
+        const barWidth = (width - 3 * 10) / 3;
         const barSpacing = 10;
 
-        const barChart = d3
+        barChart = d3
           .select("#country-overview")
           .append("svg")
-          .attr("width", "100%")
-          .attr("height", 250);
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
 
         // Add y-axis
         const yAxis = d3.axisLeft(yScale).tickFormat(format);
         barChart
           .append("g")
           .attr("class", "y-axis")
-          .attr("transform", "translate(40,0)")
+          .attr("transform", "translate(" + margin.left + ",0)")
           .call(yAxis);
 
         // Add bars for gold, silver, and bronze
         const medalColors = ["#ffd700", "#c0c0c0", "#cd7f32"];
 
-        // Check if countryMedals array is not empty
-        if (maxMedals > 0) {
-          // Append bars with initial height
-          barChart
-            .selectAll(".country-overview-plot")
-            .data(countryMedals)
-            .enter()
-            .append("rect")
-            .attr("class", "country-overview-plot")
-            .attr("x", (d, i) => i * (barWidth + barSpacing) + 40)
-            .attr("y", (d) => yScale(0))
-            .attr("width", barWidth)
-            .attr("height", 0)
-            .attr("fill", (d, i) => medalColors[i])
-            .transition()
-            .duration(800)
-            .attr("y", (d) => yScale(d))
-            .attr("height", (d) => 200 - yScale(d))
-            .delay((d, i) => i * 100);
+        // Append bars with initial height
+        barChart
+          .selectAll(".country-overview-plot")
+          .data(countryMedals)
+          .enter()
+          .append("rect")
+          .attr("class", "country-overview-plot")
+          .attr("x", (d, i) => margin.left + i * (barWidth + barSpacing))
+          .attr("y", (d) => yScale(0))
+          .attr("width", barWidth)
+          .attr("height", 0)
+          .attr("fill", (d, i) => medalColors[i])
+          .transition()
+          .duration(800)
+          .attr("y", (d) => yScale(d))
+          .attr("height", (d) => height - yScale(d))
+          .delay((d, i) => i * 100);
 
-          barChart
-            .selectAll("rect")
-            .on("mouseover", function (d, i) {
-              let text = "";
-              if (i == 0) {
-                text = `${d} 🥇`;
-              } else if (i == 1) {
-                text = `${d} 🥈`;
-              } else {
-                text = `${d} 🥉`;
-              }
-              tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
-            })
-            .on("mousemove", function () {
-              tooltip
-                .style("top", d3.event.pageY - 10 + "px")
-                .style("left", d3.event.pageX + 10 + "px");
-            })
-            .on("mouseout", function () {
-              tooltip.html("").style("visibility", "hidden");
-            });
+        barChart
+          .selectAll("rect")
+          .on("mouseover", function (d, i) {
+            let text = "";
+            if (i == 0) {
+              text = `${d} 🥇`;
+            } else if (i == 1) {
+              text = `${d} 🥈`;
+            } else {
+              text = `${d} 🥉`;
+            }
+            tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
+          })
+          .on("mousemove", function () {
+            tooltip
+              .style("top", d3.event.pageY - 10 + "px")
+              .style("left", d3.event.pageX + 10 + "px");
+          })
+          .on("mouseout", function () {
+            tooltip.html("").style("visibility", "hidden");
+          });
 
-          let tooltip = d3
-            .select("body")
-            .append("div")
-            .attr("class", "d3-tooltip")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .style("padding", "10px")
-            .style("background", "rgba(0,0,0,0.6)")
-            .style("border-radius", "4px")
-            .style("color", "#fff");
+        let tooltip = d3
+          .select("body")
+          .append("div")
+          .attr("class", "d3-tooltip")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("padding", "10px")
+          .style("background", "rgba(0,0,0,0.6)")
+          .style("border-radius", "4px")
+          .style("color", "#fff");
 
-          barChart
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0)
-            .attr("x", -(250 / 2))
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .style("fill", "white")
-            .text("Anzahl");
+        barChart
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left + 25)
+          .attr("x", (-margin.top - height) / 2)
+          .style("text-anchor", "middle")
+          .style("fill", "white")
+          .text("Anzahl");
 
-          barChart
-            .append("text")
-            .attr(
-              "transform",
-              "translate(" + (690 / 2 + 40) + " ," + (250 - 20) + ")"
-            )
-            .style("text-anchor", "middle")
-            .style("fill", "white")
-            .text("Medaillentyp");
-        }
+
+
+        barChart
+          .append("text")
+          .attr("x", (width + margin.left) / 2)
+          .attr("y", height + margin.top + 40)
+          .style("text-anchor", "middle")
+          .style("fill", "white")
+          .text("Medaillentyp");
 
         // Get athletes data for the clicked country
         const countryAthletes = athletData.filter(
@@ -395,9 +402,9 @@ document.addEventListener("DOMContentLoaded", function () {
         barPlotContainer.selectAll("*").remove();
 
         // set the dimensions and margins of the graph
-        var margin = { top: 10, right: 30, bottom: 60, left: 40 },
+        var margin = { top: 10, right: 30, bottom: 60, left: 60 },
           width = 760 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+          height = 320 - margin.top - margin.bottom;
 
         // Set up the SVG container for the bar plot
         const svg = barPlotContainer
@@ -466,18 +473,6 @@ document.addEventListener("DOMContentLoaded", function () {
             tooltip.html("").style("visibility", "hidden");
           });
 
-        let tooltip = d3
-          .select("body")
-          .append("div")
-          .attr("class", "d3-tooltip")
-          .style("position", "absolute")
-          .style("z-index", "10")
-          .style("visibility", "hidden")
-          .style("padding", "10px")
-          .style("background", "rgba(0,0,0,0.6)")
-          .style("border-radius", "4px")
-          .style("color", "#fff");
-
         // Add labels for athlete names
         svg
           .selectAll(".athlete-label")
@@ -493,18 +488,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         svg
           .append("text")
-          .attr("text-anchor", "end")
-          .attr("x", width / 2 + margin.left)
+          .attr("text-anchor", "middle")
+          .attr("x", (width + margin.left) / 2)
           .attr("y", height + margin.top + 40)
           .style("fill", "white")
           .text("Anzahl");
 
         svg
           .append("text")
-          .attr("text-anchor", "end")
+          .attr("text-anchor", "middle")
           .attr("transform", "rotate(-90)")
           .attr("y", -margin.left + 25)
-          .attr("x", -margin.top - height / 2)
+          .attr("x", (-margin.top - height) / 2)
           .style("fill", "white")
           .text("Athlet");
 
@@ -585,9 +580,10 @@ function createLineChart(athletData, countriesLineChart) {
   );
   d3.select("#country-line-plot").select("svg").remove();
 
-  const lineChartWidth = 680;
-  const lineChartHeight = 300;
-  const lineChartMargin = { top: 10, right: 250, bottom: 50, left: 60 };
+  const lineChartWidth = 670;
+  const lineChartHeight = 320;
+  const lineChartMargin = { top: 10, right: 30, bottom: 60, left: 60 };
+
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -667,12 +663,13 @@ function createLineChart(athletData, countriesLineChart) {
 
   lineChartSvg
     .append("text")
-    .attr("text-anchor", "end")
+    .attr("text-anchor", "middle")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 15)
-    .attr("x", -lineChartHeight / 2)
+    .attr("y", -margin.left + 80)
+    .attr("x", -lineChartHeight / 2) 
     .style("fill", "white")
     .text("Anzahl");
+
 
   lineChartSvg
     .append("g")
@@ -687,9 +684,9 @@ function createLineChart(athletData, countriesLineChart) {
 
   lineChartSvg
     .append("text")
-    .attr("text-anchor", "end")
-    .attr("x", lineChartWidth / 2)
-    .attr("y", lineChartHeight + lineChartMargin.bottom - 5)
+    .attr("text-anchor", "middle")
+    .attr("x", (lineChartWidth + lineChartMargin.left) / 2)
+    .attr("y", lineChartHeight + lineChartMargin.top + 40)
     .style("fill", "white")
     .text("Jahr");
 
