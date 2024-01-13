@@ -1,9 +1,9 @@
-// Funktion zum Umschalten zwischen Dunkel- und Hellmodus
 function toggleDarkMode() {
   const body = document.body;
+  const toggleSwitch = document.getElementById("toggle");
 
-  // Überprüfe, ob der Dunkelmodus aktiv ist
-  const isLightMode = body.classList.contains("dark-mode");
+  // Check the current state of the switch
+  const isLightMode = !body.classList.contains("dark-mode");
 
   // If dark mode is active, set legend color to white, otherwise to black
   const legendColor = isLightMode ? "black" : "white";
@@ -11,22 +11,32 @@ function toggleDarkMode() {
   // Update the color of the legend
   d3.select("#legendLog").style("fill", legendColor);
 
-  // Wenn ja, deaktiviere den Dunkelmodus, sonst aktiviere ihn
-  if (isLightMode) {
-    body.classList.remove("dark-mode");
-  } else {
-    body.classList.add("dark-mode");
-  }
+  // Toggle the dark mode class
+  body.classList.toggle("dark-mode");
+
+  // Store the state in localStorage
+  localStorage.setItem("darkMode", toggleSwitch.checked);
 }
 
-// Optional: Überprüfe beim Laden der Seite den Modus und setze ihn entsprechend
 document.addEventListener("DOMContentLoaded", function () {
   const body = document.body;
-  const isLightMode =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const toggleSwitch = document.getElementById("toggle");
 
-  if (isLightMode) {
-    body.classList.add("dark-mode");
+  // Check if there's a stored state in localStorage
+  const storedDarkMode = localStorage.getItem("darkMode");
+
+  if (storedDarkMode !== null) {
+    // If there's a stored state, use it to set the dark mode
+    body.classList.toggle("dark-mode", storedDarkMode === "true");
+    // Update the switch state
+    toggleSwitch.checked = storedDarkMode === "true";
+  } else {
+    // If no stored state, use the prefers-color-scheme as a default
+    const isDarkMode =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    body.classList.toggle("dark-mode", isDarkMode);
+    // Update the switch state
+    toggleSwitch.checked = isDarkMode;
   }
 });

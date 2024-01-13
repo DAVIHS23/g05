@@ -179,7 +179,7 @@ hr {
 #toggle_label {
   width: 40px;
   height: 20px;
-  background-color: white;
+  background-color: black;
   border-radius: 10px;
   position: relative;
   cursor: pointer;
@@ -192,16 +192,16 @@ hr {
   left: 2px;
   width: 16px;
   height: 16px;
-  background-color: black;
+  background-color: white;
   border-radius: 50%;
   transition: transform 0.3s;
 }
-#toggle:checked + label {
-  background-color: black;
-}
-#toggle:checked + label::before {
-  transform: translateX(20px);
+#toggle:checked + #toggle_label {
   background-color: white;
+}
+#toggle:checked + #toggle_label::before {
+  transform: translateX(20px);
+  background-color: black;
 }
 
 #content {

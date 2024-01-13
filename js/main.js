@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let log_legend = d3
       .legendColor()
-      .title("Anzahl Medaillen (gewichtet)")
+      .title("Anzahl Medaillen (gewichtet: Gold=3, Silver=2, Bronze=1)")
       .shapeHeight(20)
       .shapeWidth(50)
       .orient("horizontal")
@@ -665,6 +665,7 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 80)
     .attr("x", -lineChartHeight / 2)
+    .attr("class", "axisLineChartLabelTextY")
     .style("fill", "white")
     .text("Anzahl");
 
@@ -684,6 +685,7 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("text-anchor", "middle")
     .attr("x", (lineChartWidth + lineChartMargin.left) / 2)
     .attr("y", lineChartHeight + lineChartMargin.top + 40)
+    .attr("id", "axisLineChartLabelTextX")
     .style("fill", "white")
     .text("Jahr");
 
@@ -1037,3 +1039,6 @@ function createGenderPieChart(athleteData) {
 //     .style("fill", "white")
 //     .text("Land");
 // }
+
+
+
