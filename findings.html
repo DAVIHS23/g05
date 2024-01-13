@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DAVI</title>
+    <title>DAVI: Wettstreit der Nationen</title>
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&family=Montserrat:wght@100&display=swap"
@@ -13,8 +13,16 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    ß
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🏅</text></svg>"
+    />
   </head>
 
   <body>
@@ -26,7 +34,27 @@
       <a href="design.html">Design Entscheidungen</a>
       <a href="references.html">Referenzen</a>
       <a href="contact.html">Team</a>
+      <div id="toggle-container">
+        Dark/Light:
+        <input type="checkbox" id="toggle" onclick="toggleDarkMode()" />
+
+        <label for="toggle" id="toggle_label"> </label>
+      </div>
     </nav>
+
+    <section id="findings">
+      <h1>ERGEBNISSE</h1>
+      "A section with your visualization(s) (including interactive elements such
+      as filtering, brushing & linking, dynamic plots, etc.)"
+    </section>
+    <footer>
+      <div>
+        <p>&copy; Joel Birrer & Philipp Walczak</p>
+        <a href="mailto: philipp.walczak@stud.hslu.ch" class="footer-link"
+          >Kontaktiere uns</a
+        >
+      </div>
+    </footer>
     <button
       type="button"
       class="hover-button"
@@ -35,18 +63,10 @@
     >
       <i class="fa fa-solid fa-angle-up"></i>
     </button>
-    <section id="visualization">
-      <h1>VISUALIZATION</h1>
-      "A section with your visualization(s) (including interactive elements such
-      as filtering, brushing & linking, dynamic plots, etc.)"
-    </section>
-    <footer>
-      <div>
-        <p>&copy; Joel Birrer & Philipp Walczak</p>
-        <a href="mailto: philipp.walczak@stud.ch">Contact us</a>
-      </div>
-    </footer>
-    <script src="main.js"></script>
-    <script src="scrollup.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.13.0/d3-legend.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="js/scrollup.js"></script>
+    <script src="js/change_mode.js"></script>
   </body>
 </html>

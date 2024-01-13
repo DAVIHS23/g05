@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DAVI</title>
+    <title>DAVI: Wettstreit der Nationen</title>
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&family=Montserrat:wght@100&display=swap"
@@ -13,8 +13,15 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🏅</text></svg>"
+    />
   </head>
   <body>
     <nav>
@@ -25,7 +32,74 @@
       <a href="design.html">Design Entscheidungen</a>
       <a href="references.html">Referenzen</a>
       <a href="contact.html">Team</a>
+      <div id="toggle-container">
+        Dark/Light:
+        <input type="checkbox" id="toggle" onclick="toggleDarkMode()" />
+
+        <label for="toggle" id="toggle_label"> </label>
+      </div>
     </nav>
+
+    <section id="background">
+      <h1>PROJEKTINFORMATIONEN</h1>
+      <!-- Your content for the home page goes here -->
+      "A section with background information on your research project and your
+      first sketch" <br />
+      <br />
+
+      <div id="content">
+        <h4>Ziel der Arbeit:</h4>
+        <p>
+          Die Olympischen Spiele reichen weit in die Vergangenheit zurück und
+          sind ein traditionsreiches Ereignis von grosser Bedeutung. Das Ziel
+          dieser Arbeit ist es, die Erfolge verschiedener Nationen bei den
+          Olympischen Spielen über unterschiedliche Zeiträume darzustellen.
+          Dabei sollen relevante Informationen hervorgehoben werden, die die
+          Dynamik und Muster der sportlichen Leistungen der Nationen
+          verdeutlichen.
+        </p>
+        <br />
+
+        <h4>Arbeitsprozess:</h4>
+        <p>
+          In einem ersten Schritt wurden individuell zwei Skizzen erstellt, um
+          sicherzustellen, dass beide Teammitglieder eine ähnliche Vision für
+          die Visualisierung des Themas haben. Etwaige Abweichungen wurden in
+          die finale Visualisierung integriert. Die Ergebnisse zeigten
+          Ähnlichkeiten.
+        </p>
+
+        <p>
+          Ein Dashboard soll entwickelt werden, auf dem der Benutzer eine
+          interaktive Weltkarte mit verschiedenen Steuerelementen hat. Die
+          Weltkarte dient dabei als Grundlage. Funktionen wie das Filtern nach
+          verschiedenen Ländern sowie eine interaktive Karte zum An- und
+          Abwählen von Ländern sollen implementiert werden. Bei der Auswahl
+          eines Landes werden verschiedene Grafiken sichtbar, mit denen der User
+          weitere Einblicke erhält.
+        </p>
+      </div>
+      <br />
+      <img
+        src="img/davi_sketch.jpeg"
+        alt="Skizze_1"
+        style="width: 960px; height: 640px"
+      />
+      <br />
+      <img
+        src="img/DAVI_Sketch.jpg"
+        alt="Skizze_2"
+        style="width: 960px; height: 640px"
+      />
+    </section>
+    <footer>
+      <div>
+        <p>&copy; Joel Birrer & Philipp Walczak</p>
+        <a href="mailto: philipp.walczak@stud.hslu.ch" class="footer-link"
+          >Kontaktiere uns</a
+        >
+      </div>
+    </footer>
     <button
       type="button"
       class="hover-button"
@@ -34,19 +108,10 @@
     >
       <i class="fa fa-solid fa-angle-up"></i>
     </button>
-    <section id="background">
-      <h1>BACKGROUND</h1>
-      <!-- Your content for the home page goes here -->
-      "A section with background information on your research project and your
-      first sketch"
-      <img src="" alt="" />
-    </section>
-    <footer>
-      <div>
-        <p>&copy; Joel Birrer & Philipp Walczak</p>
-        <a href="mailto: philipp.walczak@stud.ch">Contact us</a>
-      </div>
-    </footer>
-    <script src="scrollup.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.13.0/d3-legend.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="js/scrollup.js"></script>
+    <script src="js/change_mode.js"></script>
   </body>
 </html>

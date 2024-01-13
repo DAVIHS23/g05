@@ -125,6 +125,7 @@ function updateChart() {
       x(getTotalMedals(map_country_medals.get(country)))
     )
     .attr("height", y.bandwidth());
+
   // Function to get the type of medal (Gold, Silver, Bronze)
   function getMedalType(medals) {
     if (medals[0] > 0) {
@@ -146,9 +147,9 @@ function updateChart() {
       case "Silver":
         return "silver";
       case "Bronze":
-        return "brown"; // Change this to the color you prefer for bronze
+        return "brown";
       default:
-        return "#69b3a2"; // Default color for other cases
+        return "#69b3a2";
     }
   }
 }
@@ -209,7 +210,7 @@ function getTotalMedals(medals) {
   if (medals) {
     return medals.reduce((acc, val) => acc + val, 0);
   } else {
-    return 0; // Return 0 if medals is undefined
+    return 0;
   }
 }
 
@@ -229,13 +230,6 @@ dropdown
   .append("option")
   .text((d) => d)
   .attr("value", (d) => d);
-
-// Tooltip
-const tooltip = d3
-  .select("body")
-  .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
 
 d3.json("Data/data.json").then(function (athletData) {
   map_country_medals = new Map();

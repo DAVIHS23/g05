@@ -1,12 +1,13 @@
 body {
-  background-color: #131316 !important;
-  color: #ffffff !important;
+  background-color: white !important;
+  color: black !important;
   font-family: "Manrope" !important;
   padding: 0 !important;
   margin: 0 !important;
 }
+
 section {
-  display: grid;
+  display: grid !important;
   place-items: center;
   align-content: center;
   min-height: 100vh;
@@ -23,8 +24,10 @@ footer {
 }
 
 nav {
-  background-color: #131316;
   overflow: hidden;
+  /* position: fixed; 
+  top: 0;
+  width: 100%; Full width */
 }
 
 nav a {
@@ -40,13 +43,12 @@ nav a:hover {
   background-color: #ddd;
   color: black;
 }
+body:not(.dark-mode) nav a {
+  color: black;
+}
 
 #home {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   margin-top: 20px;
-  background-color: #131316;
 }
 
 #map-container {
@@ -54,23 +56,24 @@ nav a:hover {
   height: 100vh;
   margin-left: auto;
   margin-right: auto;
-  transition: margin-left 0.5s ease; /* Add transition for smooth movement */
-  overflow: hidden; /* Hide any content that overflows the container */
+  transition: margin-left 0.5s ease;
+  overflow: hidden;
 }
 
-/* Set initial size for the graphs */
 #graphs-container {
   width: 0;
-  height: 1360px;
+  height: 1420px;
   overflow: hidden;
   transition: width 0.5s ease-in;
   background-color: #353535;
-}
-#country-overview {
-  padding: 20px;
+  color: white;
 }
 
-/* Add styles for the selected country */
+.country-specifics {
+  padding-left: 20px;
+  padding-top: 20px;
+}
+
 .selected-country {
   fill: #4682b4;
 }
@@ -80,6 +83,9 @@ h1 {
 
 h3 {
   margin-top: 5px;
+}
+h4 {
+  font-weight: bold !important;
 }
 
 #scrollButton {
@@ -107,14 +113,6 @@ h3 {
   text-decoration: underline;
 }
 
-#athlete-bar-plot {
-  padding: 20px;
-}
-
-.athlete-bar {
-  transition: width 0.5s ease-in-out;
-}
-
 .athlete-bar:hover {
   fill: #485b28;
 }
@@ -129,10 +127,76 @@ h3 {
   text-anchor: end;
 }
 
+#country-overview {
+  padding: 0 20px 20px 20px;
+}
+#athlete-bar-plot {
+  padding: 0 20px 20px 20px;
+}
+
+.athlete-bar {
+  transition: width 0.5s ease-in-out;
+}
+
 #total-medals-bar-plot {
-  padding: 20px;
+  padding: 0 20px 20px 20px;
 }
 
 #country-line-plot {
+  padding: 0 20px 20px 20px;
+}
+
+#gender-distribution {
   padding: 20px;
+}
+
+.dark-mode {
+  background-color: #131316 !important;
+  color: white !important;
+}
+
+hr {
+  border: solid white;
+  background-color: white;
+}
+#toggle-container {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 14px;
+  padding-right: 16px;
+}
+
+#toggle {
+  display: none;
+}
+#toggle_label {
+  width: 40px;
+  height: 20px;
+  background-color: white;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  margin-left: 12px;
+}
+#toggle_label::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: black;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+#toggle:checked + label {
+  background-color: black;
+}
+#toggle:checked + label::before {
+  transform: translateX(20px);
+  background-color: white;
+}
+
+#content {
+  margin: 0 200px 0 200px;
 }

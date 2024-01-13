@@ -32,11 +32,20 @@
       <a href="design.html">Design Entscheidungen</a>
       <a href="references.html">Referenzen</a>
       <a href="contact.html">Team</a>
+      <div id="toggle-container">
+        Dark/Light:
+        <input type="checkbox" id="toggle" onclick="toggleDarkMode()" />
+
+        <label for="toggle" id="toggle_label"> </label>
+      </div>
     </nav>
 
     <section id="home">
       <h1>WETTSTREIT DER NATIONEN</h1>
       <h3>Olympische Triumphe auf einen Blick</h3>
+      <h5><i>1896 - 2016</i></h5>
+      <br />
+      <br />
 
       <div id="columns-container" class="container-fluid">
         <div class="row">
@@ -49,51 +58,70 @@
             <div id="graphs-container">
               <h4 class="country-specifics">Medaillenübersicht</h4>
               <div id="country-overview"></div>
-
+              <hr />
               <h4 class="country-specifics">
                 Top 10 Athleten mit den meisten Medaillen
               </h4>
 
               <div id="athlete-bar-plot"></div>
+              <hr />
+              <h4 class="country-specifics">
+                Historischer Ländervergleich nach Anzahl Medaillien
+              </h4>
+              <div id="country-line-plot">
+                <label for="selectionButton">Vergleiche mit:</label>
 
-              <h4 class="country-specifics">Ländervergleich</h4>
-              <select class="selectionButton" id="country1"></select>
-              <div id="country-line-plot"></div>
+                <select class="selectionButton" id="country1"></select>
+              </div>
             </div>
           </div>
         </div>
-        <div style="border-top: 1px solid white; margin: 20px 0"></div>
+        <hr />
+        <br />
       </div>
-
       <div id="columns-container" class="container-fluid">
         <div class="row">
           <div class="col-md-6">
             <div id="total-medals-bar-plot">
               <div>
-                <h4>Globale Top 10 Medaillensieger</h4>
-                <label for="dropdown-menu">Wähle Sieger nach:</label>
+                <h4>Globale Top 10 Länder nach Anzahl Medaillen</h4>
+                <label for="dropdown-menu">Wähle Medaillentyp nach:</label>
                 <select id="dropdown-menu" onchange="updateChart()">
-                  <option value="total">Top Total</option>
-                  <option value="gold">Top Gold</option>
-                  <option value="silver">Top Silber</option>
-                  <option value="bronze">Top Bronze</option>
+                  <option value="total">Total</option>
+                  <option value="gold">Gold</option>
+                  <option value="silver">Silber</option>
+                  <option value="bronze">Bronze</option>
                 </select>
               </div>
             </div>
           </div>
           <div class="col-md-6">
-            <div id="gender-distribution">
-              <div><h4>Globale Geschlechtsverteilung der Athleten</h4></div>
-            </div>
+            <h4>
+              Globale Verteilung der Medaillen nach Geschlecht der Athleten
+            </h4>
+            <div id="gender-distribution"></div>
           </div>
         </div>
       </div>
+      <br />
+      <br />
+      <br />
+      <i
+        >Die Webseite wurde auf korrekte Darstellung mit den folgenden Browser
+        überprüft:
+        <ul>
+          <li>Safari</li>
+          <li>Chromium</li>
+        </ul></i
+      >
+      <br />
+      <br />
     </section>
 
     <footer>
       <div>
         <p>&copy; Joel Birrer & Philipp Walczak</p>
-        <a href="mailto: philipp.walczak@stud.ch" class="footer-link"
+        <a href="mailto: philipp.walczak@stud.hslu.ch" class="footer-link"
           >Kontaktiere uns</a
         >
       </div>
@@ -112,5 +140,6 @@
     <script src="js/main.js"></script>
     <script src="js/scrollup.js"></script>
     <script src="js/total_medals.js"></script>
+    <script src="js/change_mode.js"></script>
   </body>
 </html>

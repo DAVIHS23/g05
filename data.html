@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DAVI</title>
+    <title>DAVI: Wettstreit der Nationen</title>
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&family=Montserrat:wght@100&display=swap"
@@ -13,8 +13,15 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🏅</text></svg>"
+    />
   </head>
   <body>
     <nav>
@@ -25,7 +32,130 @@
       <a href="design.html">Design Entscheidungen</a>
       <a href="references.html">Referenzen</a>
       <a href="contact.html">Team</a>
+      <div id="toggle-container">
+        Dark/Light:
+        <input type="checkbox" id="toggle" onclick="toggleDarkMode()" />
+
+        <label for="toggle" id="toggle_label"> </label>
+      </div>
     </nav>
+
+    <section id="data">
+      <h1>DATA SOURCES</h1>
+      <!-- Your content for the home page goes here -->
+      "A section providing basic information on your data sources"
+      <br />
+      <br />
+
+      <div id="content">
+        <p>Die verwendeten Daten wurden von kaggle heruntergeladen:</p>
+        <p>
+          <a
+            href="https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results?ref=hackernoon.com"
+            target="_blank"
+            >https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results?ref=hackernoon.com</a
+          >
+        </p>
+        <br />
+
+        <h4>Datenlizenz:</h4>
+        <p>
+          Die Daten sind unter
+          <a
+            href="https://creativecommons.org/publicdomain/zero/1.0/"
+            target="_blank"
+            >CC0</a
+          >
+          lizenziert.
+        </p>
+        <br />
+
+        <h4>Datensatzinformationen:</h4>
+        <p>
+          Der Datensatz umfasst Informationen über Athleten sowie
+          Medaillenergebnisse von den Olympischen Spielen in Athen 1896 bis Rio
+          2016. Es sind 271'116 Einträge mit folgenden Eigenschaften enthalten:
+        </p>
+        <ul>
+          <li>ID - Unique number for each athlete</li>
+          <li>Name - Athlete's name</li>
+          <li>Sex - M or F</li>
+          <li>Age - Integer</li>
+          <li>Height - In centimeters</li>
+          <li>Weight - In kilograms</li>
+          <li>Team - Team name</li>
+          <li>NOC - National Olympic Committee 3-letter code</li>
+          <li>Games - Year and season</li>
+          <li>Year - Integer</li>
+          <li>Season - Summer or Winter</li>
+          <li>City - Host city</li>
+          <li>Sport - Sport</li>
+          <li>Event - Event</li>
+          <li>Medal - Gold, Silver, Bronze, or NA</li>
+        </ul>
+
+        <p>Es gibt zwei CSV-Dateien: athlete_events und noc_regions.</p>
+        <br />
+
+        <h4>Datenaufbereitung:</h4>
+        <p>
+          Um die Daten für die Visualisierung vorzubereiten, wurde ein
+          grundlegender Datenaufbereitungsprozess durchgeführt. In einem Jupyter
+          Notebook wurden mehrere Schritte implementiert, um die Rohdaten
+          optimal für die geplante Visualisierung aufzubereiten.
+        </p>
+
+        <p>
+          Zunächst erfolgte die Zusammenführung der beiden Datensätze,
+          "athlete_events.csv" und "noc_regions.csv", basierend auf der
+          "NOC"-Spalte. Dieser Schritt ermöglichte die Integration von
+          Regionsinformationen in den Athletendatensatz.
+        </p>
+
+        <p>
+          Anschliessend wurden bestimmte Spalten wie "ID", "Games", "Event",
+          "Team" und "notes" entfernt, da sie für die geplante Visualisierung
+          nicht relevant waren.
+        </p>
+
+        <p>
+          Die Qualität der Daten wurde überprüft und entsprechende Massnahmen
+          wurden ergriffen, falls die Daten nicht vollständig vorliegen. Damit
+          wurde sichergestellt, dass die Visualisierung auf robusten und
+          vollständigen Informationen basiert.
+        </p>
+
+        <p>
+          Der Reinigungsprozess umfasste auch die Anpassung von Ländernamen, um
+          ein einheitliches Format sicherzustellen. Beispielsweise wurden
+          Abkürzungen wie "USA" in den vollen Namen "United States of America"
+          umgewandelt, um die Lesbarkeit und Vergleichbarkeit zu verbessern.
+        </p>
+
+        <p>
+          Schliesslich wurde der Datensatz für die Visualisierung vorbereitet,
+          indem nicht relevante Informationen entfernt und die verbleibenden
+          Daten in ein geeignetes Format konvertiert wurden. Der resultierende
+          Datensatz wurde in ein JSON-Format umgewandelt und gespeichert.
+          Nachfolgend ist ein Auszug der Daten zu sehnen nach der
+          Datenaufbereitung:
+        </p>
+
+        <iframe
+          src="Data/sample_data.json"
+          width="100%"
+          height="400px"
+        ></iframe>
+      </div>
+    </section>
+    <footer>
+      <div>
+        <p>&copy; Joel Birrer & Philipp Walczak</p>
+        <a href="mailto: philipp.walczak@stud.hslu.ch" class="footer-link"
+          >Kontaktiere uns</a
+        >
+      </div>
+    </footer>
     <button
       type="button"
       class="hover-button"
@@ -34,18 +164,10 @@
     >
       <i class="fa fa-solid fa-angle-up"></i>
     </button>
-    <section id="data">
-      <h1>DATA SOURCES</h1>
-      <!-- Your content for the home page goes here -->
-      "A section providing basic information on your data sources"
-      <iframe src="Data/sample_data.json" width="100%" height="400px"></iframe>
-    </section>
-    <footer>
-      <div>
-        <p>&copy; Joel Birrer & Philipp Walczak</p>
-        <a href="mailto: philipp.walczak@stud.ch">Contact us</a>
-      </div>
-    </footer>
-    <script src="scrollup.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.13.0/d3-legend.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="js/scrollup.js"></script>
+    <script src="js/change_mode.js"></script>
   </body>
 </html>

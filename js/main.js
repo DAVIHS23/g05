@@ -123,22 +123,26 @@ document.addEventListener("DOMContentLoaded", function () {
     // Create a path generator
     const path = d3.geoPath().projection(projection);
 
-    svg.append("g")
+    svg
+      .append("g")
       .attr("class", "legendLog")
-      .attr("transform", `translate(0,${mapHeight*0.93})`); 
+      .attr("transform", `translate(0,${mapHeight * 0.93})`);
 
-    let log_legend = d3.legendColor()
-        .title("Anzahl Medaillen (gewichtet)")
-        .shapeHeight(20)
-        .shapeWidth(50)
-        .orient("horizontal")
-        .cells([0.1, 10, 100, 1000, 10000])
-        .labelFormat(locale.format(",.0f"))
-        .scale(colorScale);
+    let log_legend = d3
+      .legendColor()
+      .title("Anzahl Medaillen (gewichtet)")
+      .shapeHeight(20)
+      .shapeWidth(50)
+      .orient("horizontal")
+      .cells([0.1, 10, 100, 1000, 10000])
+      .labelFormat(locale.format(",.0f"))
+      .scale(colorScale);
 
-    svg.select(".legendLog")
-        .style("fill", "#FFFFFF")
-        .call(log_legend);
+    svg
+      .select(".legendLog")
+      .attr("id", "legendLog")
+      .style("fill", "#FFFFFF")
+      .call(log_legend);
 
     // Draw the map
     const countriesPaths = svg
@@ -188,8 +192,6 @@ document.addEventListener("DOMContentLoaded", function () {
         mapContainer.transition().duration(50).style("margin-left", "0");
         // Expand the graphs container
         graphsContainer.transition().duration(500).style("width", "100%");
-
-        //svg.attr("height", mapContainer.node().getBoundingClientRect().height);
 
         clearInterval(rotationTimer);
 
@@ -265,8 +267,8 @@ document.addEventListener("DOMContentLoaded", function () {
         d3.selectAll(".selectionButton").style("visibility", "visible");
 
         var margin = { top: 10, right: 50, bottom: 60, left: 30 },
-        width = 760 - margin.left - margin.right,
-        height = 320 - margin.top - margin.bottom;
+          width = 760 - margin.left - margin.right,
+          height = 320 - margin.top - margin.bottom;
 
         // Define a scale based on the maximum gold medals
         const yScale = d3
@@ -361,8 +363,6 @@ document.addEventListener("DOMContentLoaded", function () {
           .style("fill", "white")
           .text("Anzahl");
 
-
-
         barChart
           .append("text")
           .attr("x", (width + margin.left) / 2)
@@ -453,8 +453,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const medalText =
               athleteData.count === 1 ? "Medaille" : "Medaillen";
             const text = `${athleteData.count} ${medalText}`;
-            //const text = `${athleteData.name}: ${athleteData.count} ${medalText}`;
-
             tooltip.html(`<div>${text}</div>`).style("visibility", "visible");
           })
           .transition()
@@ -527,10 +525,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Start the continuous rotation
     rotationTimer = setInterval(() => {
       const rotate = projection.rotate();
-      rotate[0] += 0.1; // Adjust the rotation speed
+      rotate[0] += 0.1;
       projection.rotate(rotate);
       countriesPaths.attr("d", path);
-    }, 30); // Adjust the interval
+    }, 30);
   });
 });
 
@@ -583,7 +581,6 @@ function createLineChart(athletData, countriesLineChart) {
   const lineChartWidth = 670;
   const lineChartHeight = 320;
   const lineChartMargin = { top: 10, right: 30, bottom: 60, left: 60 };
-
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -666,10 +663,9 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("text-anchor", "middle")
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 80)
-    .attr("x", -lineChartHeight / 2) 
+    .attr("x", -lineChartHeight / 2)
     .style("fill", "white")
     .text("Anzahl");
-
 
   lineChartSvg
     .append("g")
@@ -883,10 +879,16 @@ function createGenderPieChart(athleteData) {
     }
   });
 
+  const total = maleCount + femaleCount;
+
+  // Calculate percentage values
+  const malePercentage = (maleCount / total) * 100;
+  const femalePercentage = (femaleCount / total) * 100;
+
   // Create data array for pie chart
   const genderData = [
-    { gender: "Mann", count: maleCount },
-    { gender: "Frau", count: femaleCount },
+    { gender: "Mann", count: maleCount, percentage: malePercentage },
+    { gender: "Frau", count: femaleCount, percentage: femalePercentage },
   ];
 
   // Set up pie chart dimensions
@@ -933,7 +935,10 @@ function createGenderPieChart(athleteData) {
     .append("text")
     .attr("transform", (d) => `translate(${arc.centroid(d)})`)
     .attr("dy", "0.35em")
-    .text((d) => `${d.data.gender}: ${d.data.count}`)
+    .text(
+      (d) =>
+        `${d.data.gender}: ${d.data.count} (${d.data.percentage.toFixed(1)}%)`
+    )
     .style("text-anchor", "middle")
     .style("fill", "white");
 
