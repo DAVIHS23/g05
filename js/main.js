@@ -101,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
       0
     );
     createGenderPieChart(athletData);
+    //createTotalMedalsBarPlot(athletData);
 
     const map_country_rank = calcRanks(map_country_medals);
 
@@ -952,3 +953,87 @@ function createGenderPieChart(athleteData) {
     .style("fill", "white")
     .text("Gender Distribution");
 }
+// function createTotalMedalsBarPlot(data) {
+//   // Group the data by country and count the total number of medals for each country
+//   const groupedData = data.reduce((acc, entry) => {
+//     const country = entry.Country;
+//     acc[country] = (acc[country] || 0) + 1;
+//     return acc;
+//   }, {});
+
+//   // Convert the grouped data to an array of objects
+//   const totalMedalsData = Object.keys(groupedData).map((country) => ({
+//     country,
+//     totalMedals: groupedData[country],
+//   }));
+
+//   // Sort the data by total medals in descending order
+//   totalMedalsData.sort((a, b) => b.totalMedals - a.totalMedals);
+
+//   // Take only the top 10 countries
+//   const top10MedalsData = totalMedalsData.slice(0, 10);
+
+//   // Set up the dimensions for the bar plot
+//   const margin_barplot = { top: 30, right: 30, bottom: 70, left: 120 },
+//     width = 650 - margin_barplot.right,
+//     height = 400 - margin_barplot.top - margin_barplot.bottom;
+
+//   // Create SVG element
+//   const svg = d3
+//     .select("#total-medals-bar-plot")
+//     .append("svg")
+//     .attr("width", width + margin_barplot.left + margin_barplot.right)
+//     .attr("height", height + margin_barplot.top + margin_barplot.bottom)
+//     .append("g")
+//     .attr(
+//       "transform",
+//       `translate(${margin_barplot.left},${margin_barplot.top})`
+//     );
+
+//   // Create x and y scales
+//   const x = d3.scaleBand().range([0, width]).padding(0.1);
+//   const y = d3.scaleLinear().range([height, 0]);
+
+//   // Set the domain of x and y scales
+//   x.domain(top10MedalsData.map((d) => d.country));
+//   y.domain([0, d3.max(top10MedalsData, (d) => d.totalMedals)]);
+
+//   // Create bars
+//   svg
+//     .selectAll(".bar")
+//     .data(top10MedalsData)
+//     .enter()
+//     .append("rect")
+//     .attr("class", "bar")
+//     .attr("x", (d) => x(d.country))
+//     .attr("width", x.bandwidth())
+//     .attr("y", (d) => y(d.totalMedals))
+//     .attr("height", (d) => height - y(d.totalMedals));
+
+//   // Add x-axis
+//   svg
+//     .append("g")
+//     .attr("transform", `translate(0,${height})`)
+//     .call(d3.axisBottom(x));
+
+//   // Add y-axis
+//   svg.append("g").call(d3.axisLeft(y));
+
+//   // Add labels
+//   svg
+//     .append("text")
+//     .attr("text-anchor", "middle")
+//     .attr("transform", "rotate(-90)")
+//     .attr("y", -margin_barplot.left + 10)
+//     .attr("x", -height / 2)
+//     .style("fill", "white")
+//     .text("Anzahl");
+
+//   svg
+//     .append("text")
+//     .attr("text-anchor", "middle")
+//     .attr("x", width / 2)
+//     .attr("y", height + margin_barplot.bottom - 10)
+//     .style("fill", "white")
+//     .text("Land");
+// }

@@ -66,13 +66,15 @@
               <div id="athlete-bar-plot"></div>
               <hr />
               <h4 class="country-specifics">
-                Historischer Ländervergleich nach Anzahl Medaillien
+                Historischer Ländervergleich nach Anzahl Medaillen
               </h4>
-              <div id="country-line-plot">
+              <div id="selectionButton">
                 <label for="selectionButton">Vergleiche mit:</label>
 
                 <select class="selectionButton" id="country1"></select>
               </div>
+
+              <div id="country-line-plot"></div>
             </div>
           </div>
         </div>
@@ -86,7 +88,7 @@
               <div>
                 <h4>Globale Top 10 Länder nach Anzahl Medaillen</h4>
                 <label for="dropdown-menu">Wähle Medaillentyp nach:</label>
-                <select id="dropdown-menu" onchange="updateChart()">
+                <select id="dropdown-menu">
                   <option value="total">Total</option>
                   <option value="gold">Gold</option>
                   <option value="silver">Silber</option>

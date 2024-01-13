@@ -65,8 +65,12 @@ body:not(.dark-mode) nav a {
   height: 1420px;
   overflow: hidden;
   transition: width 0.5s ease-in;
-  background-color: #353535;
+  background-color: #131316;
   color: white;
+}
+body:not(.dark-mode) #graphs-container {
+  color: black;
+  background-color: white;
 }
 
 .country-specifics {
@@ -74,6 +78,9 @@ body:not(.dark-mode) nav a {
   padding-top: 20px;
 }
 
+#selectionButton {
+  padding-left: 20px;
+}
 .selected-country {
   fill: #4682b4;
 }
@@ -198,5 +205,17 @@ hr {
 }
 
 #content {
-  margin: 0 200px 0 200px;
+  margin: 0 320px 0 320px;
+}
+
+.team-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 20px;
+}
+
+.member-details {
+  font-size: 16px;
 }
