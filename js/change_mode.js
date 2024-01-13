@@ -6,10 +6,16 @@ function toggleDarkMode() {
   const isLightMode = !body.classList.contains("dark-mode");
 
   // If dark mode is active, set legend color to white, otherwise to black
-  const legendColor = isLightMode ? "black" : "white";
+  const legendColor = isLightMode ? "white" : "black";
+
+  // Log the legendColor for debugging
+  console.log("Legend Color:", legendColor);
 
   // Update the color of the legend
   d3.select("#legendLog").style("fill", legendColor);
+
+  // Update the color of the legend
+  d3.selectAll(".axis-label").style("fill", legendColor);
 
   // Toggle the dark mode class
   body.classList.toggle("dark-mode");

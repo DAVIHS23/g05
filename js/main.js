@@ -665,7 +665,6 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 80)
     .attr("x", -lineChartHeight / 2)
-    .attr("class", "axisLineChartLabelTextY")
     .style("fill", "white")
     .text("Anzahl");
 
@@ -678,14 +677,14 @@ function createLineChart(athletData, countriesLineChart) {
     .style("text-anchor", "end")
     .attr("dx", "-1em")
     .attr("dy", "-0.5em")
-    .attr("transform", "rotate(-90)");
+    .attr("transform", "rotate(-90)")
+    .attr("class", "axis-label");
 
   lineChartSvg
     .append("text")
     .attr("text-anchor", "middle")
     .attr("x", (lineChartWidth + lineChartMargin.left) / 2)
     .attr("y", lineChartHeight + lineChartMargin.top + 40)
-    .attr("id", "axisLineChartLabelTextX")
     .style("fill", "white")
     .text("Jahr");
 
@@ -1039,6 +1038,3 @@ function createGenderPieChart(athleteData) {
 //     .style("fill", "white")
 //     .text("Land");
 // }
-
-
-
