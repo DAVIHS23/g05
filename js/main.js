@@ -129,9 +129,27 @@ document.addEventListener("DOMContentLoaded", function () {
       .attr("class", "legendLog")
       .attr("transform", `translate(0,${mapHeight * 0.93})`);
 
+    let titleText = "Anzahl Medaillen";
+    let subTitleText = "(gewichtet: 🥇=3, 🥈=2, 🥉=1)";
+    //let subTitleText = "(gewichtet: Gold=3, Silver=2, Bronze=1)";
+
+    svg
+      .select(".legendLog")
+      .append("text")
+      .attr("x", 0)
+      .attr("y", -30)
+      .style("font-weight", "bold")
+      .text(titleText);
+
+    svg
+      .select(".legendLog")
+      .append("text")
+      .attr("x", 0)
+      .attr("y", -10)
+      .text(subTitleText);
+
     let log_legend = d3
       .legendColor()
-      .title("Anzahl Medaillen (gewichtet: Gold=3, Silver=2, Bronze=1)")
       .shapeHeight(20)
       .shapeWidth(50)
       .orient("horizontal")
