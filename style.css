@@ -66,7 +66,6 @@ body:not(.dark-mode) nav a {
   overflow: hidden;
   transition: width 0.5s ease-in;
   background-color: #131316;
-  color: white;
 }
 body:not(.dark-mode) #graphs-container {
   color: black;

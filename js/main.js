@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
     svg
       .select(".legendLog")
       .attr("id", "legendLog")
-      .style("fill", "#FFFFFF")
+      .style("fill", updateColors())
       .call(log_legend);
 
     // Draw the map
@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         d3.select(this).classed("selected-country", true);
         d3.select("#graphs-container")
-          .selectAll("h4.country-specifics")
+          .selectAll("h4.country-specifics, .parting-line, #selectionButton")
           .style("display", "block");
 
         barChart = d3.select("#country-overview");
@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `<span>Für das Land ${countryName} sind keine Medaillen vorhanden.</span>`
           );
           d3.select("#graphs-container")
-            .selectAll("h4.country-specifics")
+            .selectAll(".country-specifics, .parting-line, #selectionButton")
             .style("display", "none");
 
           countriesLineChart = [];
@@ -361,7 +361,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("y", -margin.left + 25)
           .attr("x", (-margin.top - height) / 2)
           .style("text-anchor", "middle")
-          .style("fill", "white")
+          .attr("class", "axis-label")
+          .style("fill", updateColors())
           .text("Anzahl");
 
         barChart
@@ -369,7 +370,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("x", (width + margin.left) / 2)
           .attr("y", height + margin.top + 40)
           .style("text-anchor", "middle")
-          .style("fill", "white")
+          .attr("class", "axis-label")
+          .style("fill", updateColors())
           .text("Medaillentyp");
 
         // Get athletes data for the clicked country
@@ -490,7 +492,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("text-anchor", "middle")
           .attr("x", (width + margin.left) / 2)
           .attr("y", height + margin.top + 40)
-          .style("fill", "white")
+          .attr("class", "axis-label")
+          .style("fill", updateColors())
           .text("Anzahl");
 
         svg
@@ -499,7 +502,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("transform", "rotate(-90)")
           .attr("y", -margin.left + 25)
           .attr("x", (-margin.top - height) / 2)
-          .style("fill", "white")
+          .attr("class", "axis-label")
+          .style("fill", updateColors())
           .text("Athlet");
 
         createLineChart(athletData, countriesLineChart);
@@ -665,7 +669,8 @@ function createLineChart(athletData, countriesLineChart) {
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 80)
     .attr("x", -lineChartHeight / 2)
-    .style("fill", "white")
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
     .text("Anzahl");
 
   lineChartSvg
@@ -677,15 +682,15 @@ function createLineChart(athletData, countriesLineChart) {
     .style("text-anchor", "end")
     .attr("dx", "-1em")
     .attr("dy", "-0.5em")
-    .attr("transform", "rotate(-90)")
-    .attr("class", "axis-label");
+    .attr("transform", "rotate(-90)");
 
   lineChartSvg
     .append("text")
     .attr("text-anchor", "middle")
     .attr("x", (lineChartWidth + lineChartMargin.left) / 2)
     .attr("y", lineChartHeight + lineChartMargin.top + 40)
-    .style("fill", "white")
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
     .text("Jahr");
 
   lineChartSvg.append("g").call(d3.axisLeft(line_yScale));
@@ -722,7 +727,7 @@ function createLineChart(athletData, countriesLineChart) {
   const legend = lineChartSvg
     .append("g")
     .attr("class", "legend")
-    .attr("transform", "translate(" + lineChartWidth / 2 + ")")
+    .attr("transform", "translate(500,0)")
     .selectAll("g")
     .data(countriesLineChart)
     .enter()
@@ -740,7 +745,8 @@ function createLineChart(athletData, countriesLineChart) {
     .append("text")
     .attr("x", 15)
     .attr("y", (d, i) => i * 20 + 9)
-    .style("fill", "white")
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
     .text((d) => d);
 
   const brushX = d3
@@ -1038,3 +1044,18 @@ function createGenderPieChart(athleteData) {
 //     .style("fill", "white")
 //     .text("Land");
 // }
+
+function updateColors() {
+  const body = document.body;
+
+  // Check the current state of the switch
+  const isLightMode = !body.classList.contains("dark-mode");
+
+  // If dark mode is active, set legend color to white, otherwise to black
+  const legendColor = !isLightMode ? "white" : "black";
+
+  // Log the legendColor for debugging
+  console.log("updateColors gets called", legendColor);
+
+  return legendColor;
+}

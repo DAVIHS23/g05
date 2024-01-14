@@ -127,7 +127,8 @@ function updateChart() {
     .attr("transform", "rotate(-90)")
     .attr("y", -margin.left + 10)
     .attr("x", -height / 2)
-    .style("fill", "white")
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
     .text("Land");
 
   svg
@@ -135,7 +136,8 @@ function updateChart() {
     .attr("text-anchor", "middle")
     .attr("x", width / 2)
     .attr("y", height + margin.bottom - 10)
-    .style("fill", "white")
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
     .text("Anzahl");
 
   // Define the x-axis scale (only once)
