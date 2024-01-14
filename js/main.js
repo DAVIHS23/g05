@@ -485,7 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("y", (d) => y(d.name) + y.bandwidth() / 2)
           .text((d) => `${d.name}`)
           .attr("alignment-baseline", "middle")
-          .attr("fill", "#fff");
+          .attr("fill", "#ccc");
 
         svg
           .append("text")
