@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
       0
     );
     createGenderPieChart(athletData);
-    //createTotalMedalsBarPlot(athletData);
+    createTop10MedalsBarPlot(athletData);
 
     const map_country_rank = calcRanks(map_country_medals);
 
@@ -685,7 +685,7 @@ function createLineChart(athletData, countriesLineChart) {
     .append("text")
     .attr("text-anchor", "middle")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 80)
+    .attr("y", -lineChartMargin.left + 20)
     .attr("x", -lineChartHeight / 2)
     .attr("class", "axis-label")
     .style("fill", updateColors())
@@ -787,6 +787,12 @@ function createLineChart(athletData, countriesLineChart) {
         line_xScale.invert(selection[0]),
         line_xScale.invert(selection[1]),
       ]);
+
+      // Add transition to smoothly zoom in
+      lineChartSvg
+        .select(".x-axis")
+        .transition()
+        .call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
       setTimeout(() => {
         lineChartSvg.select(".brushX").call(brushX.move, null);
       }, 100); // the zoom animation takes time, hence the delay
@@ -822,31 +828,47 @@ function createLineChart(athletData, countriesLineChart) {
 
     lineChartSvg
       .select(".x-axis")
+      .transition()
+      .duration(1000)
+      .ease(d3.easeQuad) // Adjust the easing function as needed
+
       .call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
+
+    // Create the line interpolation function with linear curve
+    const lineInterpolator = d3
+      .line()
+      .x((d) => line_xScale(d.year))
+      .y((d) => line_yScale(d.count))
+      .curve(d3.curveLinear);
 
     lineChartSvg
       .selectAll(".line")
       .data(filteredData)
-      .attr("d", (d) => line(d));
+      .transition()
+      .duration(1000)
+      .attr("d", (d) => lineInterpolator(d));
 
     circlesGroup.selectAll("circle").remove();
 
-    for (let i = 0; i < filteredData.length; i++) {
-      circlesGroup
-        .selectAll(`.circle-${i}`)
-        .data(filteredData[i])
-        .enter()
-        .append("circle")
-        .attr("class", `circle-${i}`)
-        .attr("cx", (d) => line_xScale(d.year))
-        .attr("cy", (d) => line_yScale(d.count))
-        .attr("r", 3)
-        .attr("fill", colorScale(i))
-        .append("title")
-        .text(
-          (d) => `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
-        );
-    }
+    // Create new circles after the lines have transitioned
+    setTimeout(() => {
+      for (let i = 0; i < filteredData.length; i++) {
+        circlesGroup
+          .selectAll(`.circle-${i}`)
+          .data(filteredData[i])
+          .enter()
+          .append("circle")
+          .attr("class", `circle-${i}`)
+          .attr("cx", (d) => line_xScale(d.year))
+          .attr("cy", (d) => line_yScale(d.count))
+          .attr("r", 3)
+          .attr("fill", colorScale(i))
+          .append("title")
+          .text(
+            (d) => `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+          );
+      }
+    }, 850); // Delay the circle creation to match the line transition
 
     lineChartSvg
       .select(".x-axis")
@@ -923,7 +945,7 @@ function createGenderPieChart(athleteData) {
   const pieRadius = Math.min(pieWidth, pieHeight) / 2;
 
   // Define color scale
-  const colorScale = d3.scaleOrdinal().range(["#3498db", "#e74c3c"]);
+  const colorScale = d3.scaleOrdinal().range(["steelblue", "#ff5252"]);
 
   // Create pie chart
   const pie = d3.pie().value((d) => d.count);
@@ -967,101 +989,152 @@ function createGenderPieChart(athleteData) {
     )
     .style("text-anchor", "middle")
     .style("fill", "white");
-
-  // Add a title to the pie chart
-  pieChartSvg
-    .append("text")
-    .attr("x", 0)
-    .attr("y", -pieHeight / 2 - 10)
-    .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .style("fill", "white")
-    .text("Gender Distribution");
 }
-// function createTotalMedalsBarPlot(data) {
-//   // Group the data by country and count the total number of medals for each country
-//   const groupedData = data.reduce((acc, entry) => {
-//     const country = entry.Country;
-//     acc[country] = (acc[country] || 0) + 1;
-//     return acc;
-//   }, {});
+function createTop10MedalsBarPlot(athletData) {
+  // Create an array to store the total medals for each country
+  const totalMedalsData = [];
 
-//   // Convert the grouped data to an array of objects
-//   const totalMedalsData = Object.keys(groupedData).map((country) => ({
-//     country,
-//     totalMedals: groupedData[country],
-//   }));
+  // Calculate the total medals for each country
+  athletData.forEach((athlete) => {
+    const country = athlete.Country;
+    const medal = athlete.Medal;
 
-//   // Sort the data by total medals in descending order
-//   totalMedalsData.sort((a, b) => b.totalMedals - a.totalMedals);
+    // Check if the medal is valid (Gold, Silver, or Bronze)
+    if (medal && ["Gold", "Silver", "Bronze"].includes(medal)) {
+      const index = totalMedalsData.findIndex(
+        (item) => item.country === country
+      );
 
-//   // Take only the top 10 countries
-//   const top10MedalsData = totalMedalsData.slice(0, 10);
+      if (index !== -1) {
+        // If the country is already in the array, update the medal count
+        totalMedalsData[index][medal.toLowerCase()] += 1;
+        totalMedalsData[index].total += 1;
+      } else {
+        // If the country is not in the array, add a new entry
+        const newEntry = {
+          country: country,
+          gold: medal === "Gold" ? 1 : 0,
+          silver: medal === "Silver" ? 1 : 0,
+          bronze: medal === "Bronze" ? 1 : 0,
+          total: 1,
+        };
+        totalMedalsData.push(newEntry);
+      }
+    }
+  });
 
-//   // Set up the dimensions for the bar plot
-//   const margin_barplot = { top: 30, right: 30, bottom: 70, left: 120 },
-//     width = 650 - margin_barplot.right,
-//     height = 400 - margin_barplot.top - margin_barplot.bottom;
+  // Sort the array based on the total number of medals
+  totalMedalsData.sort((a, b) => b.total - a.total);
 
-//   // Create SVG element
-//   const svg = d3
-//     .select("#total-medals-bar-plot")
-//     .append("svg")
-//     .attr("width", width + margin_barplot.left + margin_barplot.right)
-//     .attr("height", height + margin_barplot.top + margin_barplot.bottom)
-//     .append("g")
-//     .attr(
-//       "transform",
-//       `translate(${margin_barplot.left},${margin_barplot.top})`
-//     );
+  // Extract top 10 countries and their total medal counts
+  const top10Countries = totalMedalsData.slice(0, 10);
 
-//   // Create x and y scales
-//   const x = d3.scaleBand().range([0, width]).padding(0.1);
-//   const y = d3.scaleLinear().range([height, 0]);
+  // Use the same margins and dimensions
+  const margin = { top: 30, right: 30, bottom: 70, left: 120 };
+  const width = 650 - margin.right;
+  const height = 450 - margin.top - margin.bottom;
 
-//   // Set the domain of x and y scales
-//   x.domain(top10MedalsData.map((d) => d.country));
-//   y.domain([0, d3.max(top10MedalsData, (d) => d.totalMedals)]);
+  // Create an SVG container for the bar plot
+  const barPlotSvg = d3
+    .select("#total-medals-bar-plot")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-//   // Create bars
-//   svg
-//     .selectAll(".bar")
-//     .data(top10MedalsData)
-//     .enter()
-//     .append("rect")
-//     .attr("class", "bar")
-//     .attr("x", (d) => x(d.country))
-//     .attr("width", x.bandwidth())
-//     .attr("y", (d) => y(d.totalMedals))
-//     .attr("height", (d) => height - y(d.totalMedals));
+  // Update the y-axis scale
+  const y = d3
+    .scaleBand()
+    .domain(top10Countries.map((entry) => entry.country))
+    .range([0, height])
+    .padding(0.2);
+  barPlotSvg.selectAll(".y-axis").remove();
+  barPlotSvg.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
 
-//   // Add x-axis
-//   svg
-//     .append("g")
-//     .attr("transform", `translate(0,${height})`)
-//     .call(d3.axisBottom(x));
+  barPlotSvg
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -margin.left + 10)
+    .attr("x", -height / 2)
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
+    .text("Land");
 
-//   // Add y-axis
-//   svg.append("g").call(d3.axisLeft(y));
+  barPlotSvg
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom - 10)
+    .attr("class", "axis-label")
+    .style("fill", updateColors())
+    .text("Anzahl");
 
-//   // Add labels
-//   svg
-//     .append("text")
-//     .attr("text-anchor", "middle")
-//     .attr("transform", "rotate(-90)")
-//     .attr("y", -margin_barplot.left + 10)
-//     .attr("x", -height / 2)
-//     .style("fill", "white")
-//     .text("Anzahl");
+  // Create x and y scales
+  const xScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(top10Countries, (entry) => entry.total)])
+    .range([0, width]);
 
-//   svg
-//     .append("text")
-//     .attr("text-anchor", "middle")
-//     .attr("x", width / 2)
-//     .attr("y", height + margin_barplot.bottom - 10)
-//     .style("fill", "white")
-//     .text("Land");
-// }
+  // Create x-axis
+  barPlotSvg
+    .append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(xScale));
+
+  // Create bars for each country
+  barPlotSvg
+    .selectAll(".bar")
+    .data(top10Countries)
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("y", (d) => y(d.country))
+    .attr("x", 0)
+    .attr("height", y.bandwidth())
+    .attr("width", (d) => xScale(d.total))
+    .style("fill", "#ffd700")
+    .on("mouseover", function (d) {
+      d3.select(this).style("fill", "#ccae00");
+
+      // Update tooltip content based on medal type
+      let medalText = "";
+      if (d.gold > 0) medalText += `${d.gold} 🥇 `;
+      if (d.silver > 0) medalText += `${d.silver} 🥈 `;
+      if (d.bronze > 0) medalText += `${d.bronze} 🥉 `;
+
+      tooltip
+        .html(
+          `<div>${d.country}: ${d.total} Medals</div><div>${medalText}</div>`
+        )
+        .style("visibility", "visible");
+    })
+    .on("mousemove", function (event, d) {
+      const [x, y] = d3.mouse(this);
+
+      tooltip.style("top", y - 5 + "px").style("left", x + 160 + "px");
+    })
+
+    .on("mouseout", function (d) {
+      d3.select(this).style("fill", "gold");
+      tooltip.html("").style("visibility", "hidden");
+    });
+
+  let tooltip = d3
+    .select("#total-medals-bar-plot") // Select the container element
+
+    .append("div")
+    .attr("class", "d3-tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("padding", "10px")
+    .style("background", "rgba(0,0,0,0.6)")
+    .style("border-radius", "4px")
+    .style("color", "#fff");
+}
 
 function updateColors() {
   const body = document.body;
@@ -1071,9 +1144,6 @@ function updateColors() {
 
   // If dark mode is active, set legend color to white, otherwise to black
   const legendColor = !isLightMode ? "white" : "black";
-
-  // Log the legendColor for debugging
-  console.log("updateColors gets called", legendColor);
 
   return legendColor;
 }

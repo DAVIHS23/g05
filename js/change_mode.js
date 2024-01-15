@@ -8,9 +8,6 @@ function toggleDarkMode() {
   // If dark mode is active, set legend color to white, otherwise to black
   const legendColor = isLightMode ? "white" : "black";
 
-  // Log the legendColor for debugging
-  console.log("Legend Color:", legendColor);
-
   // Update the color of the legend
   d3.select("#legendLog").style("fill", legendColor);
 
