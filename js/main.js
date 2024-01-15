@@ -600,10 +600,9 @@ function createLineChart(athletData, countriesLineChart) {
   );
   d3.select("#country-line-plot").select("svg").remove();
 
-  const lineChartWidth = 800;
+  const lineChartWidth = 670;
   const lineChartHeight = 320;
-  const lineChartMarginLegend = 30;
-  const lineChartMargin = { top: 10, right: 160, bottom: 60, left: 60 };
+  const lineChartMargin = { top: 10, right: 30, bottom: 60, left: 60 };
 
   const colorScale = d3.scaleOrdinal().range(["#4682b4", "#ff5252"]);
 
@@ -642,7 +641,7 @@ function createLineChart(athletData, countriesLineChart) {
         (d) => d.year
       ) + 5,
     ])
-    .range([0, lineChartWidth - lineChartMargin.right + lineChartMarginLegend]);
+    .range([0, lineChartWidth]);
   const line_yScale = d3
     .scaleLinear()
     .domain([
@@ -705,7 +704,7 @@ function createLineChart(athletData, countriesLineChart) {
   lineChartSvg
     .append("text")
     .attr("text-anchor", "middle")
-    .attr("x", (lineChartWidth + lineChartMargin.left - lineChartMargin.right + lineChartMarginLegend) / 2)
+    .attr("x", (lineChartWidth + lineChartMargin.left) / 2)
     .attr("y", lineChartHeight + lineChartMargin.top + 40)
     .attr("class", "axis-label")
     .style("fill", updateColors())
@@ -745,7 +744,7 @@ function createLineChart(athletData, countriesLineChart) {
   const legend = lineChartSvg
     .append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${lineChartWidth + lineChartMargin.left - lineChartMargin.right - lineChartMarginLegend})`)
+    .attr("transform", "translate(500,0)")
     .selectAll("g")
     .data(countriesLineChart)
     .enter()
