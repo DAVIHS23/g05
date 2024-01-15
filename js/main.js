@@ -991,6 +991,16 @@ function createGenderPieChart(athleteData) {
     .style("fill", "white");
 }
 function createTop10MedalsBarPlot(athletData) {
+  const swissFormat = {
+    decimal: ".",
+    thousands: "'",
+    grouping: [3],
+    currency: ["", " CHF"],
+  };
+
+  const locale = d3.formatLocale(swissFormat);
+  const format = locale.format(",");
+
   // Create an array to store the total medals for each country
   const totalMedalsData = [];
 
@@ -1082,7 +1092,7 @@ function createTop10MedalsBarPlot(athletData) {
     .append("g")
     .attr("class", "x-axis")
     .attr("transform", `translate(0, ${height})`)
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickFormat(format));
 
   // Create bars for each country
   barPlotSvg
@@ -1106,7 +1116,7 @@ function createTop10MedalsBarPlot(athletData) {
       if (d.bronze > 0) medalText += `${d.bronze} 🥉 `;
 
       tooltip
-        .html(`<div>Total: ${d.total} Medals</div><div>${medalText}</div>`)
+        .html(`<div>Total: ${d.total} Medaillen</div><div>${medalText}</div>`)
         .style("visibility", "visible");
     })
     .on("mousemove", function (event, d) {
@@ -1121,8 +1131,7 @@ function createTop10MedalsBarPlot(athletData) {
     });
 
   let tooltip = d3
-    .select("#total-medals-bar-plot") // Select the container element
-
+    .select("#total-medals-bar-plot")
     .append("div")
     .attr("class", "d3-tooltip")
     .style("position", "absolute")
