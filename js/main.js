@@ -270,17 +270,16 @@ document.addEventListener("DOMContentLoaded", function () {
             createLineChart(athletData, countriesLineChart);
           });
 
-          if (dropdown.selectAll("option").size() < 1) {
-            dropdown.append("option").text(`Vergleichsland`).attr("value", "");
+          dropdown.selectAll("option").remove();
+          dropdown.append("option").text("Vergleichsland").attr("value", "");
 
-            dropdown
-              .selectAll(null)
-              .data(countryNamesFiltered)
-              .enter()
-              .append("option")
-              .text((d) => d)
-              .attr("value", (d) => d);
-          }
+          dropdown
+            .selectAll(null)
+            .data(countryNamesFiltered)
+            .enter()
+            .append("option")
+            .text((d) => d)
+            .attr("value", (d) => d);
         });
 
         d3.selectAll(".selectionButton").style("visibility", "visible");
