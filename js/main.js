@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("y", (d) => y(d.name))
           .attr("width", 0)
           .attr("height", y.bandwidth())
-          .attr("fill", "#556b2f")
+          .attr("fill", "#3468C0")
           .on("mouseover", function (d, i) {
             const athleteData = top10MedalData[i];
             const medalText =
