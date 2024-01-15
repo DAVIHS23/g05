@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("y", (d) => y(d.name))
           .attr("width", 0)
           .attr("height", y.bandwidth())
-          .attr("fill", "#3468C0")
+          .attr("fill", "#4682b4")
           .on("mouseover", function (d, i) {
             const athleteData = top10MedalData[i];
             const medalText =
@@ -605,7 +605,7 @@ function createLineChart(athletData, countriesLineChart) {
   const lineChartHeight = 320;
   const lineChartMargin = { top: 10, right: 30, bottom: 60, left: 60 };
 
-  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+  const colorScale = d3.scaleOrdinal().range(["#4682b4", "#ff5252"]);
 
   const lineChartSvg = d3
     .select("#country-line-plot")
@@ -819,6 +819,8 @@ function createLineChart(athletData, countriesLineChart) {
   }
 
   function updateLineChart() {
+    const selection = d3.event ? d3.event.selection : null;
+
     const filteredData = medalDatabyCountryAndYear.map((countryData) => {
       return countryData.filter(
         (d) =>
@@ -829,9 +831,8 @@ function createLineChart(athletData, countriesLineChart) {
     lineChartSvg
       .select(".x-axis")
       .transition()
-      .duration(1000)
-      .ease(d3.easeQuad) // Adjust the easing function as needed
-
+      .duration(selection ? 1000 : 0) // Skip transition on reset
+      .ease(d3.easeQuad)
       .call(d3.axisBottom(line_xScale).tickFormat(d3.format("d")));
 
     // Create the line interpolation function with linear curve
@@ -845,30 +846,34 @@ function createLineChart(athletData, countriesLineChart) {
       .selectAll(".line")
       .data(filteredData)
       .transition()
-      .duration(1000)
+      .duration(selection ? 1000 : 0) // Skip transition on reset
       .attr("d", (d) => lineInterpolator(d));
 
     circlesGroup.selectAll("circle").remove();
 
     // Create new circles after the lines have transitioned
-    setTimeout(() => {
-      for (let i = 0; i < filteredData.length; i++) {
-        circlesGroup
-          .selectAll(`.circle-${i}`)
-          .data(filteredData[i])
-          .enter()
-          .append("circle")
-          .attr("class", `circle-${i}`)
-          .attr("cx", (d) => line_xScale(d.year))
-          .attr("cy", (d) => line_yScale(d.count))
-          .attr("r", 3)
-          .attr("fill", colorScale(i))
-          .append("title")
-          .text(
-            (d) => `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
-          );
-      }
-    }, 850); // Delay the circle creation to match the line transition
+    setTimeout(
+      () => {
+        for (let i = 0; i < filteredData.length; i++) {
+          circlesGroup
+            .selectAll(`.circle-${i}`)
+            .data(filteredData[i])
+            .enter()
+            .append("circle")
+            .attr("class", `circle-${i}`)
+            .attr("cx", (d) => line_xScale(d.year))
+            .attr("cy", (d) => line_yScale(d.count))
+            .attr("r", 3)
+            .attr("fill", colorScale(i))
+            .append("title")
+            .text(
+              (d) =>
+                `${countriesLineChart[i]} (${d.year}): ${d.count} Medaillen`
+            );
+        }
+      },
+      selection ? 850 : 0
+    ); // Skip circle creation on reset
 
     lineChartSvg
       .select(".x-axis")
@@ -945,7 +950,7 @@ function createGenderPieChart(athleteData) {
   const pieRadius = Math.min(pieWidth, pieHeight) / 2;
 
   // Define color scale
-  const colorScale = d3.scaleOrdinal().range(["steelblue", "#ff5252"]);
+  const colorScale = d3.scaleOrdinal().range(["#4682b4", "#ff5252"]);
 
   // Create pie chart
   const pie = d3.pie().value((d) => d.count);
