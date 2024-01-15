@@ -1106,9 +1106,7 @@ function createTop10MedalsBarPlot(athletData) {
       if (d.bronze > 0) medalText += `${d.bronze} 🥉 `;
 
       tooltip
-        .html(
-          `<div>${d.country}: ${d.total} Medals</div><div>${medalText}</div>`
-        )
+        .html(`<div>Total: ${d.total} Medals</div><div>${medalText}</div>`)
         .style("visibility", "visible");
     })
     .on("mousemove", function (event, d) {
